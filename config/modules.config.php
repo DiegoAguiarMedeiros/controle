@@ -24,5 +24,6 @@ return [
     'Zend\I18n',
     'Zend\Router',
     'Zend\Validator',
+    'Api',
     'Application',
 ];

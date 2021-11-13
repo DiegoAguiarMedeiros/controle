@@ -7,6 +7,7 @@
 
 namespace Application\Controller;
 
+use Application\Form\ProdutoForm;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
@@ -14,6 +15,15 @@ class IndexController extends AbstractActionController
 {
     public function indexAction()
     {
+        return new ViewModel();
+    }
+    public function produtosAction()
+    {
+        $request = $this->getRequest();
+        $produtoForm = new ProdutoForm('produto');
+        if (!$request->isPost()) {
+            return new ViewModel(['produtoForm' => $produtoForm]);
+        }
         return new ViewModel();
     }
 }
