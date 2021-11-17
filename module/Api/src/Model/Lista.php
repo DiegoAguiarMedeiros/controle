@@ -4,7 +4,7 @@ namespace Api\Model;
 
 use Zend\Db\Sql\Sql;
 
-class Categoria
+class Lista
 {
     private $id;
     private $nome;
@@ -30,7 +30,7 @@ class Categoria
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $select = $sql->select('categoria');
+        $select = $sql->select('lista');
         if($limit){
             $select->limit($limit);
         }
@@ -40,12 +40,12 @@ class Categoria
         $select->order("$coluna $order");
         $selectString = $sql->buildSqlString($select);
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
-        $categorias = array();
+        $Listas = array();
 
         foreach ($results->toArray() as $value) {
-            $categorias[$value['id']] = $value['nome'];
+            $Listas[$value['id']] = $value['nome'];
         }
-        return $categorias;
+        return $Listas;
     }
     
     public function fetch()
@@ -53,7 +53,7 @@ class Categoria
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $select = $sql->select('categoria');
+        $select = $sql->select('lista');
         $select->where(['id'=>$this->id]);
         $selectString = $sql->buildSqlString($select);
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
@@ -68,28 +68,27 @@ class Categoria
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $insert = $sql->insert('categoria');
+        $insert = $sql->insert('Lista');
         $insert->values(['nome'=>$this->nome]);
         $insertString = $sql->buildSqlString($insert);
-        $result = $adapter->query($insertString,$adapter::QUERY_MODE_EXECUTE);
-        return $result->getAffectedRows();
+        return  $adapter->query($insertString,$adapter::QUERY_MODE_EXECUTE);
     }
     public function delete()
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $delete = $sql->delete('categoria');
+        $delete = $sql->delete('Lista');
         $delete->where(['id'=>$this->id]);
         $deleteString = $sql->buildSqlString($delete);
         $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
     }
-    public function editCategoria()
+    public function editLista()
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $update = $sql->update('categoria');
+        $update = $sql->update('Lista');
         $update->set(['nome' => $this->nome]);
         $update->where(['id'=>$this->id]);
         $updateString = $sql->buildSqlString($update);

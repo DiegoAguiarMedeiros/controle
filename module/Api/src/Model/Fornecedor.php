@@ -69,9 +69,10 @@ class Fornecedor
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
         $insert = $sql->insert('fornecedor');
-        $insert->values(['path'=>$this->path]);
+        $insert->values(['nome'=>$this->nome]);
         $insertString = $sql->buildSqlString($insert);
-        $adapter->query($insertString,$adapter::QUERY_MODE_EXECUTE);
+        $result = $adapter->query($insertString,$adapter::QUERY_MODE_EXECUTE);
+        return $result->getAffectedRows();
     }
     public function delete()
     {

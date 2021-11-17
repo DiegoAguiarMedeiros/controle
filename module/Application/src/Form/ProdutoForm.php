@@ -7,6 +7,7 @@ use Zend\Form\Form;
 use Api\Model\Medida;
 use Api\Model\Categoria;
 use Api\Model\Fornecedor;
+use Api\Model\Produto;
 
 class ProdutoForm extends Form
 {
@@ -19,6 +20,18 @@ class ProdutoForm extends Form
             'type' => Element\Text::class,
             'options' => [
                 'label' => 'Nome:',
+            ],
+        ]);
+
+        $produto = new Produto();
+        $produtos = $produto->fetchAllNome();
+
+        $this->add([
+            'type' => Element\Select::class,
+            'name' => 'produto',
+            'options' => [
+                'label' => 'Produto: ',
+                'value_options' => $produtos
             ],
         ]);
 
@@ -58,7 +71,7 @@ class ProdutoForm extends Form
 
         $this->add([
             'name' => 'quantidade',
-            'type' => Element\Text::class,
+            'type' => Element\Number::class,
             'options' => [
                 'label' => 'Quantidade: '
             ],

@@ -22,14 +22,18 @@
 
   <!-- Scripts -->
   <?= $this->inlineScript()
-    ->prependFile($this->basePath('assets/js/black-dashboard.min.js?v=1.0.0'))
-    ->prependFile($this->basePath('assets/js/plugins/bootstrap-notify.js'))
-    ->prependFile($this->basePath('assets/js/plugins/chartjs.min.js'))
-    ->prependFile($this->basePath('assets/js/plugins/perfect-scrollbar.jquery.min.js'))
+    ->prependFile($this->basePath('/js/jquery.maskMoney.min.js'))
+    ->prependFile($this->basePath('/assets/js/black-dashboard.min.js?v=1.0.0'))
+    ->prependFile($this->basePath('/assets/js/plugins/bootstrap-notify.js'))
+    ->prependFile($this->basePath('/assets/js/plugins/chartjs.min.js'))
+    ->prependFile($this->basePath('/assets/js/plugins/perfect-scrollbar.jquery.min.js'))
     ->prependFile($this->basePath('/js/bootstrap.min.js'))
-    ->prependFile($this->basePath('assets/js/core/popper.min.js'))
-    ->prependFile($this->basePath('assets/js/core/jquery.min.js'))
+    ->prependFile($this->basePath('/assets/js/core/popper.min.js'))
+    ->prependFile($this->basePath('/assets/js/core/jquery.min.js'))
   ?>
+
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -55,23 +59,18 @@
             </a>
           </li>
           <li>
-            <a href="./application/produtos">
+            <a href="/application/produtos">
               <i class="tim-icons icon-bag-16"></i>
               <p>Produtos</p>
             </a>
           </li>
           <li>
-            <a href="./map.html">
-              <i class="tim-icons icon-pin"></i>
-              <p>Maps</p>
+            <a href="/application/lista">
+              <i class="tim-icons icon-book-bookmark"></i>
+              <p>Lista de Compras</p>
             </a>
           </li>
-          <li>
-            <a href="./notifications.html">
-              <i class="tim-icons icon-bell-55"></i>
-              <p>Notifications</p>
-            </a>
-          </li>
+          
 
         </ul>
       </div>

@@ -1,0 +1,171 @@
+<?php
+
+$produtoForm = $this->produtoForm;
+$produtoForm->prepare();
+$produtoForm->setAttribute('method', 'post');
+
+$nome = $produtoForm->get('produto');
+$nome->setAttributes(['class' => 'form-control  text-dark']);
+$nome->setAttributes(['id' => 'produtoSelect']);
+$nome->setAttributes(['required' => 'true']);
+$nome->setAttributes(['multiple' => 'true']);
+$nome->setAttributes(['aria-label ' => 'multiple select']);
+
+$send = $produtoForm->get('send');
+$send->setAttributes(['class' => 'btn btn-primary float-right']);
+$send->setAttributes(['id' => 'enviar']);
+
+?>
+<div class="col-md-12">
+    <div class="card ">
+        <div class="card-header row">
+            <div class="card-header col-10 ">
+                <h3 class="card-title"> Produtos </h3>
+            </div>
+            <div class="col-md-12">
+                <?= $this->form()->openTag($produtoForm); ?>
+                <?= $this->formElement($nome); ?>
+                <?= $this->formElement($send); ?>
+                <?= $this->form()->closeTag(); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-6 col-md-12">
+    <div class="card card-tasks">
+        <div class="card-header ">
+            <h6 class="title d-inline">Lista</h6>
+
+        </div>
+        <div class="card-body ">
+            <div class="table-full-width table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="checkbox" value="">
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="title">Update the Documentation</p>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="listaModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="listaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="listaModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    var myModal = new bootstrap.Modal(document.getElementById('listaModal'), {
+        keyboard: false
+    })
+
+
+    $('#produtoForm').submit(e => {
+        e.preventDefault()
+        let form = document.getElementById('produtoForm')
+        let formData = new FormData(form)
+        let url = '/api/addListaProduto';
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+        }).done(function(e) {
+            let result = JSON.parse(e)
+            if (result.success == 1) {
+                $('#produtoForm input').val("");
+                $('#enviar').val("Enviar");
+                Swal.fire(
+                    'Eeeeee!',
+                    'Produtos Cadastrados na Lista!',
+                    'success'
+                )
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Produtos Não Cadastrados na Lista!',
+                    'error'
+                )
+            }
+
+        }).fail(function(e) {
+            console.log(e);
+        });
+
+    })
+
+
+    const loadProdutos = () => {
+        let url = '/api/listaProduto';
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+        }).done(function(e) {
+            let result = JSON.parse(e)
+            if (result.success == 1) {
+                $('#produtoForm input').val("");
+                $('#enviar').val("Enviar");
+                Swal.fire(
+                    'Eeeeee!',
+                    'Produtos Cadastrados na Lista!',
+                    'success'
+                )
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Produtos Não Cadastrados na Lista!',
+                    'error'
+                )
+            }
+
+        }).fail(function(e) {
+            console.log(e);
+        });
+    }
+
+    $('#produtoSelect').addClass('text-white')
+    $(document).ready(function() {
+       
+    });
+</script>
