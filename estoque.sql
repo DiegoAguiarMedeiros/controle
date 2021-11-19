@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17-Nov-2021 às 01:42
--- Versão do servidor: 10.4.14-MariaDB
--- versão do PHP: 7.4.10
+-- Tempo de geração: 19-Nov-2021 às 16:51
+-- Versão do servidor: 10.4.21-MariaDB
+-- versão do PHP: 7.4.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -249,6 +249,17 @@ INSERT INTO `produto` (`id`, `status`, `nome`, `id_medida`, `quantidade`, `id_fo
 -- --------------------------------------------------------
 
 --
+-- Estrutura da tabela `produto_fornecedor`
+--
+
+CREATE TABLE `produto_fornecedor` (
+  `id_produto` int(11) NOT NULL,
+  `id_fornecedor` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura da tabela `saida_produto`
 --
 
@@ -340,6 +351,13 @@ ALTER TABLE `produto`
   ADD KEY `id_fornecedor` (`id_fornecedor`),
   ADD KEY `id_categoria` (`id_categoria`),
   ADD KEY `id_medida` (`id_medida`);
+
+--
+-- Índices para tabela `produto_fornecedor`
+--
+ALTER TABLE `produto_fornecedor`
+  ADD KEY `id_produto` (`id_produto`,`id_fornecedor`),
+  ADD KEY `FORNECEDOR_PRODUTO` (`id_fornecedor`);
 
 --
 -- Índices para tabela `saida_produto`
@@ -434,8 +452,14 @@ ALTER TABLE `lista_produto`
 --
 ALTER TABLE `produto`
   ADD CONSTRAINT `PRODUTO_CATEGORIA` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id`),
-  ADD CONSTRAINT `PRODUTO_FORNECEDOR` FOREIGN KEY (`id_fornecedor`) REFERENCES `fornecedor` (`id`),
   ADD CONSTRAINT `PRODUTO_MEDIDA` FOREIGN KEY (`id_medida`) REFERENCES `medida` (`id`);
+
+--
+-- Limitadores para a tabela `produto_fornecedor`
+--
+ALTER TABLE `produto_fornecedor`
+  ADD CONSTRAINT `FORNECEDOR_PRODUTO` FOREIGN KEY (`id_fornecedor`) REFERENCES `fornecedor` (`id`),
+  ADD CONSTRAINT `PRODUTO_FORNECEDOR` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id`);
 
 --
 -- Limitadores para a tabela `saida_produto`
