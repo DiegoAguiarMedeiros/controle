@@ -1,65 +1,30 @@
-
 <?php
 
-$fornecedorForm = $this->fornecedorForm;
-$fornecedorForm->prepare();
-$fornecedorForm->setAttribute('method', 'post');
+$fornecedor = $this->fornecedor;
 
-$nomeFornecedor = $fornecedorForm->get('nome');
-$nomeFornecedor->setAttributes(['class' => 'form-control  text-dark']);
-$nomeFornecedor->setAttributes(['placeholder' => 'fornecedor...']);
-$nomeFornecedor->setAttributes(['required' => 'true']);
-
-$sendFornecedor = $fornecedorForm->get('send');
-$sendFornecedor->setAttributes(['class' => 'btn btn-primary float-right']);
-$sendFornecedor->setAttributes(['id' => 'enviarFornecedor']);
-
-
-$categoriaForm = $this->categoriaForm;
-$categoriaForm->prepare();
-$categoriaForm->setAttribute('method', 'post');
-
-$nomeCategoria = $categoriaForm->get('nome');
-$nomeCategoria->setAttributes(['class' => 'form-control  text-dark']);
-$nomeCategoria->setAttributes(['placeholder' => 'Categoria...']);
-$nomeCategoria->setAttributes(['required' => 'true']);
-
-$sendCategoria = $categoriaForm->get('send');
-$sendCategoria->setAttributes(['class' => 'btn btn-primary float-right']);
-$sendCategoria->setAttributes(['id' => 'enviarCategoria']);
 
 $produtoForm = $this->produtoForm;
 $produtoForm->prepare();
 $produtoForm->setAttribute('method', 'post');
 
-$nome = $produtoForm->get('nome');
+$nome = $produtoForm->get('produto');
 $nome->setAttributes(['class' => 'form-control  text-dark']);
-$nome->setAttributes(['placeholder' => 'Produto...']);
+$nome->setAttributes(['placeholder' => 'fornecedor...']);
 $nome->setAttributes(['required' => 'true']);
+$fornecedorhidden = $produtoForm->get('fornecedorhidden');
+$fornecedorhidden->setAttributes(['value' => $fornecedor]);
 
-$medida = $produtoForm->get('medida');
-$medida->setAttributes(['class' => 'form-control  text-dark']);
-$medida->setAttributes(['required' => 'true']);
-
-$categoria = $produtoForm->get('categoria');
-$categoria->setAttributes(['class' => 'form-control  text-dark']);
-$categoria->setAttributes(['required' => 'true']);
-
-$fornecedor = $produtoForm->get('fornecedor');
-$fornecedor->setAttributes(['class' => 'form-control  text-dark']);
-$fornecedor->setAttributes(['required' => 'true']);
-
-$quantidade = $produtoForm->get('quantidade');
-$quantidade->setAttributes(['class' => 'form-control  text-dark']);
-$quantidade->setAttributes(['placeholder' => 'Quantidade...']);
-$quantidade->setAttributes(['required' => 'true']);
-$quantidade->setAttributes(['id' => 'quantidade']);
-
-
+$valor = $produtoForm->get('valor');
+$valor->setAttributes(['class' => 'form-control  text-dark']);
+$valor->setAttributes(['placeholder' => 'Valor...']);
+$valor->setAttributes(['id' => 'valor']);
+$valor->setAttributes(['required' => 'true']);
 
 $send = $produtoForm->get('send');
 $send->setAttributes(['class' => 'btn btn-primary float-right']);
 $send->setAttributes(['id' => 'enviar']);
+
+
 ?>
 
 
@@ -69,14 +34,12 @@ $send->setAttributes(['id' => 'enviar']);
     <div class="card ">
         <div class="card-header row">
             <div class="card-header col ">
-                <h3 class="card-title"> Produtos </h3>
+                <h3 class="card-title" id="forncededorTitle"> Fornecedores </h3>
             </div>
-            <div class="card-header col-5 row ">
-                <div class="col-6 mx-0 px-0 ">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#produtoModal">
-                        <i class="tim-icons icon-bag-16 tim-icons-lg"></i> PRODUTO +
-                    </button>
-                </div>
+            <div class="card-header col-3 mx-0 px-0">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#produtoModal">
+                    <i class="tim-icons icon-bag-16 tim-icons-lg"></i> PRODUTO +
+                </button>
             </div>
         </div>
         <div class="card-body">
@@ -88,15 +51,17 @@ $send->setAttributes(['id' => 'enviar']);
                                 Nome
                             </th>
                             <th>
-                                Medida
+                                Valor
                             </th>
+                            <th>
+                                Medida
                             </th>
                             <th>
                                 Categoria
                             </th>
                         </tr>
                     </thead>
-                    <tbody id="produtoTable">
+                    <tbody id="produtosTable">
                         <tr>
                             <td>
                                 N/A
@@ -118,36 +83,29 @@ $send->setAttributes(['id' => 'enviar']);
     </div>
 </div>
 
+
 <!-- Modal -->
 <div class="modal fade" id="produtoModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="produtoModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="transform: none;">
+    <div class="modal-dialog">
         <div class="modal-content">
             <?= $this->form()->openTag($produtoForm); ?>
             <div class="modal-header">
-                <h5 class="modal-title" id="produtoModalLabel">NOVO PRODUTO</h5>
+                <h5 class="modal-title" id="produtoModalLabel">Adicionar Produto</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
+                    <?= $this->formElement($fornecedorhidden); ?>
                     <?= $this->formLabel($nome); ?>
                     <?= $this->formElement($nome); ?>
                 </div>
                 <div class="form-group">
-                    <?= $this->formLabel($medida); ?>
-                    <?= $this->formElement($medida); ?>
-                </div>
-                <div class="form-group">
-                    <?= $this->formLabel($quantidade); ?>
-                    <?= $this->formElement($quantidade); ?>
-                </div>
-
-                <div class="form-group">
-                    <?= $this->formLabel($categoria); ?>
-                    <?= $this->formElement($categoria); ?>
+                    <?= $this->formLabel($valor); ?>
+                    <?= $this->formElement($valor); ?>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="closeProdutoModal" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="closeProdutoModal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <?= $this->formElement($send); ?>
             </div>
             <?= $this->form()->closeTag(); ?>
@@ -155,35 +113,39 @@ $send->setAttributes(['id' => 'enviar']);
     </div>
 </div>
 
-
-
 <script>
-    const loadProduto = () => {
-        $('#produtoTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
+    const loadProdutos = (fornecedor) => {
+        $('#produtosTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
                 </div></center></td></tr>`)
 
-        let url = '/api/produtos';
+        let url = '/api/listaFornecedor/' + fornecedor;
         $.ajax({
             url: url,
             type: 'GET',
             dataType: "json"
         }).fail((dados) => {
-            $('#produtoTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+            $('#produtosTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
 
         }).done((dados) => {
-            $('#produtoTable').html('')
-
+            $('#produtosTable').html('')
             dados.map(produto => {
-                $('#produtoTable').prepend(`<tr>
+                $('#forncededorTitle').html(produto.fornecedor)
+                $('#produtosTable').prepend(`<tr>
                             <td>
                                 ${produto.nome}
                             </td>
                             <td>
-                            ${produto.id_medida}
+                             R$ ${produto.valor}
                             </td>
                             <td>
-                            ${produto.id_categoria}
+                            ${produto.quantidade} ${produto.medida}
+                            </td>
+                            <td>
+                            ${produto.categoria}
+                            </td>
+                            <td>
+                            <i onClick="removerProduto(${fornecedor},${produto.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>
                             </td>
                         </tr>`)
             })
@@ -191,12 +153,39 @@ $send->setAttributes(['id' => 'enviar']);
         })
 
     }
+    const removerProduto = (fornecedor, produto) => {
+        let url = '/api/removerProdutoFornecedor/' + fornecedor + '/' + produto;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+        }).fail((dados) => {
+            $('#produtosTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
 
+        }).done((dados) => {
+            if (dados.success == 1) {
+                Swal.fire(
+                    'Eeeeee!',
+                    'Produto Removido!',
+                    'success'
+                )
+                $('#closeProdutoModal').click();
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Produto Não Removido!',
+                    'error'
+                )
+            }
+
+            loadProdutos(fornecedor)
+        })
+    }
     $('#produtoForm').submit(e => {
         e.preventDefault()
         let form = document.getElementById('produtoForm')
         let formData = new FormData(form)
-        let url = '/api/insertProduto';
+        let url = '/api/insertProdutoFornecedor';
         $.ajax({
             url: url,
             type: "POST",
@@ -206,34 +195,31 @@ $send->setAttributes(['id' => 'enviar']);
         }).done(function(e) {
             let result = JSON.parse(e)
             if (result.success == 1) {
-                $('#produtoForm input').val("");
-                $('#enviar').val("Enviar");
                 Swal.fire(
                     'Eeeeee!',
-                    'Produto Cadastrado!',
+                    'Produto Adicionado!',
                     'success'
                 )
                 $('#closeProdutoModal').click();
             } else {
                 Swal.fire(
                     'Aaaa!',
-                    'Produto Não Cadastrado!',
+                    'Produto Não Adicionado!',
                     'error'
                 )
             }
 
-            loadProduto()
+            loadProdutos(<?= $fornecedor ?>)
         }).fail(function(e) {
             console.log(e);
         });
 
     })
-    
 
 
     $(document).ready(() => {
 
-        loadProduto()
-        $('#quantidade').maskMoney({thousands:'', decimal:'.', precision:3});
+        loadProdutos(<?= $fornecedor ?>)
+        $('#valor').maskMoney();
     })
 </script>

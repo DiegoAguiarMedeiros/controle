@@ -14,7 +14,7 @@ class Produto
     private $id_categoria;
     private $valor;
 
-    public function __construct($id = "",$nome = "",$medida = "",$quantidade="",$fornecedor="",$categoria="",$valor="")
+    public function __construct($id = "", $nome = "", $medida = "", $quantidade = "", $fornecedor = "", $categoria = "", $valor = "")
     {
         $this->id = $id;
         $this->nome = $nome;
@@ -39,16 +39,18 @@ class Produto
 
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $sql = new Sql($adapter);
-        $select = $sql->select('produto');
+        $strLimit = '';
         if ($limit) {
-            $select->limit($limit);
+            $strLimit = "LIMIT $limit";
         }
+        $strOffset = '';
         if ($offset) {
-            $select->offset($offset);
+            $strOffset = "OFFSET $offset";
         }
-        $select->order("$coluna $order");
-        $selectString = $sql->buildSqlString($select);
+        $order = "ORDER BY $coluna $order";
+
+        $selectString = "SELECT p.id, p.nome, m.medida, p.quantidade, c.nome as categoria FROM produto p JOIN medida m ON m.id = p.id_medida JOIN categoria c ON c.id = p.id_categoria ";
+
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
         $produtos = array();
 
@@ -56,11 +58,8 @@ class Produto
             $produto = array();
             $produto['id'] = $value['id'];
             $produto['nome'] = $value['nome'];
-            $produto['id_medida'] = $value['id_medida'];
-            $produto['quantidade'] = $value['quantidade'];
-            $produto['id_fornecedor'] = $value['id_fornecedor'];
-            $produto['id_categoria'] = $value['id_categoria'];
-            $produto['valor'] = $value['valor'];
+            $produto['id_medida'] = $value['quantidade'] . ' ' . $value['medida'];
+            $produto['id_categoria'] = $value['categoria'];
             $produtos[] = $produto;
         }
         return $produtos;
@@ -72,7 +71,7 @@ class Produto
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
         $select = $sql->select('lista_produto');
-        
+
         if ($limit) {
             $select->limit($limit);
         }
@@ -86,35 +85,43 @@ class Produto
 
         foreach ($results->toArray() as $value) {
             $nomeProduto = new Produto($value['id_produto']);
+            $fornecedor = new Fornecedor();
+            $fornecedor->fetchBestValue($value['id_produto']);
             $nomeProduto->fetch();
             $produto = array();
             $produto['id'] = $value['id_produto'];
             $produto['nome'] = $nomeProduto->__get('nome');
+            $produto['fornecedor'] = $fornecedor->__get('nome');
+            $produto['valor'] = $fornecedor->__get('valor');
             $produto['id_medida'] = $nomeProduto->__get('id_medida');
             $produto['quantidade'] = $value['quantidade'];
-            $produto['id_fornecedor'] = $nomeProduto->__get('id_fornecedor');
             $produto['id_categoria'] = $nomeProduto->__get('id_categoria');
-            $produto['valor'] = $value['valor'];
             $produtos[] = $produto;
         }
         return $produtos;
     }
-    public function fetchAllNome($limit = null, $offset = null, $coluna = 'id', $order = 'ASC')
+    public function fetchAllNome($limit = null, $offset = null, $coluna = 'id', $order = 'ASC', $fornecedor = null)
     {
 
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $sql = new Sql($adapter);
-        $select = $sql->select('produto');
+
+        $strLimit = '';
         if ($limit) {
-            $select->limit($limit);
+            $strLimit = "LIMIT $limit";
         }
+        $strOffset = '';
         if ($offset) {
-            $select->offset($offset);
+            $strOffset = "OFFSET $offset";
         }
-        $select->order("$coluna $order");
-        $select->group("nome");
-        $selectString = $sql->buildSqlString($select);
+        $strFornecedor = '';
+        if ($fornecedor) {
+            $strFornecedor = "WHERE id NOT IN (SELECT id_produto FROM produto_fornecedor WHERE id_fornecedor = $fornecedor )";
+        }
+
+        $order = "ORDER BY $coluna $order";
+
+        $selectString = "SELECT id, nome FROM produto $strFornecedor $order $strLimit $strOffset";
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
         $produtos = array();
 
@@ -128,19 +135,15 @@ class Produto
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $sql = new Sql($adapter);
-        $select = $sql->select('produto');
-        $select->where(['id' => $this->id]);
-        $selectString = $sql->buildSqlString($select);
+
+        $selectString = "SELECT p.nome, m.medida, p.quantidade, c.nome as categoria FROM produto p JOIN medida m ON m.id = p.id_medida JOIN categoria c ON c.id = p.id_categoria WHERE p.id =$this->id ";
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
 
         foreach ($results->toArray() as $value) {
             $this->__set('nome', $value['nome']);
-            $this->__set('id_medida', $value['id_medida']);
+            $this->__set('id_medida',  $value['quantidade'] . ' ' . $value['medida']);
             $this->__set('quantidade', $value['quantidade']);
-            $this->__set('id_fornecedor', $value['id_fornecedor']);
-            $this->__set('id_categoria', $value['id_categoria']);
-            $this->__set('valor', $value['valor']);
+            $this->__set('id_categoria', $value['categoria']);
         }
     }
 
@@ -154,12 +157,11 @@ class Produto
             'nome' => $this->nome,
             'id_medida' => $this->id_medida,
             'quantidade' => $this->quantidade,
-            'id_fornecedor' => $this->id_fornecedor,
             'id_categoria' => $this->id_categoria,
-            'valor' => $this->valor
         ]);
         $insertString = $sql->buildSqlString($insert);
         $result = $adapter->query($insertString, $adapter::QUERY_MODE_EXECUTE);
+
         return $result->getAffectedRows();
     }
     public function insertLista()
@@ -170,7 +172,6 @@ class Produto
         $insert = $sql->insert('lista_produto');
         $insert->values([
             'id_produto' => $this->id,
-            'valor' => $this->valor
         ]);
         $insertString = $sql->buildSqlString($insert);
         $result = $adapter->query($insertString, $adapter::QUERY_MODE_EXECUTE);

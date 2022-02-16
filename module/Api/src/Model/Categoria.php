@@ -78,11 +78,9 @@ class Categoria
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $sql = new Sql($adapter);
-        $delete = $sql->delete('categoria');
-        $delete->where(['id'=>$this->id]);
-        $deleteString = $sql->buildSqlString($delete);
-        $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
+        $deleteString = "DELETE FROM categoria WHERE id = $this->id";
+        $result = $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
+        return $result->getAffectedRows();
     }
     public function editCategoria()
     {

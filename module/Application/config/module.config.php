@@ -27,10 +27,11 @@ return [
             'application' => [
                 'type'    => Segment::class,
                 'options' => [
-                    'route'    => '/application[/:action]',
+                    'route'    => '/application[/:action[/:id]]',
                     'defaults' => [
                         'controller' => Controller\IndexController::class,
                         'action'     => 'index',
+                        'id'     => '[0-9]+',
                     ],
                 ],
             ],

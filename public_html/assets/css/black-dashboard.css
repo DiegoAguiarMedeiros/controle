@@ -20442,4 +20442,7 @@ Copyright (c) 2015 Daniel Eden
   padding-right: 0;
 }
 
+.click{
+  cursor: pointer;
+}
 /*# sourceMappingURL=black-dashboard.css.map */

@@ -16,50 +16,69 @@ $send->setAttributes(['class' => 'btn btn-primary float-right']);
 $send->setAttributes(['id' => 'enviar']);
 
 ?>
-<div class="col-md-12">
-    <div class="card ">
-        <div class="card-header row">
-            <div class="card-header col-10 ">
-                <h3 class="card-title"> Produtos </h3>
+
+<div class="col-12 row p-4" style="min-height: 400px;">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header row">
+                <div class="card-header col-10 ">
+                    <h3 class="card-title"> Produtos </h3>
+                </div>
+                <div class="col-md-12">
+                    <?= $this->form()->openTag($produtoForm); ?>
+                    <?= $this->formElement($nome); ?>
+                    <?= $this->formElement($send); ?>
+                    <?= $this->form()->closeTag(); ?>
+                </div>
             </div>
-            <div class="col-md-12">
-                <?= $this->form()->openTag($produtoForm); ?>
-                <?= $this->formElement($nome); ?>
-                <?= $this->formElement($send); ?>
-                <?= $this->form()->closeTag(); ?>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card card-tasks h-100">
+            <div class="card-header ">
+                <h3 class="title d-inline">Lista</h3>
+
+            </div>
+            <div class="card-body ">
+                <div class="table-full-width table-responsive">
+                    <table class="table">
+                        <tbody id="listaTable">
+                            <tr>
+                                <td>
+                                    <p class="title">-</p>
+                                </td>
+                                <td>
+                                    <p class="title">-</p>
+                                </td>
+                                <td>
+                                    <p class="title">-</p>
+                                </td>
+                                <td>
+                                    <p class="title">-</p>
+                                </td>
+                                <td>
+                                    <p class="title">-</p>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<div class="col-lg-6 col-md-12">
-    <div class="card card-tasks">
-        <div class="card-header ">
-            <h6 class="title d-inline">Lista</h6>
-
-        </div>
-        <div class="card-body ">
-            <div class="table-full-width table-responsive">
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="form-check">
-                                    <label class="form-check-label">
-                                        <input class="form-check-input" type="checkbox" value="">
-                                        <span class="form-check-sign">
-                                            <span class="check"></span>
-                                        </span>
-                                    </label>
-                                </div>
-                            </td>
-                            <td>
-                                <p class="title">Update the Documentation</p>
-                            </td>
-
-                        </tr>
-                    </tbody>
-                </table>
+<div class="col-12 row  p-4" style="min-height: 400px;" id="cardFornecedor">
+    <div class="col-lg-12">
+        <div class="card card-chart">
+            <div class="card-header">
+                <h3 class="card-title">Fornecedores</h3>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="CountryChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -134,31 +153,154 @@ $send->setAttributes(['id' => 'enviar']);
 
 
     const loadProdutos = () => {
+        $('#listaTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+                </div></center></td></tr>`)
         let url = '/api/listaProduto';
         $.ajax({
             url: url,
             type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
         }).done(function(e) {
             let result = JSON.parse(e)
-            if (result.success == 1) {
-                $('#produtoForm input').val("");
-                $('#enviar').val("Enviar");
-                Swal.fire(
-                    'Eeeeee!',
-                    'Produtos Cadastrados na Lista!',
-                    'success'
-                )
-            } else {
-                Swal.fire(
-                    'Aaaa!',
-                    'Produtos Não Cadastrados na Lista!',
-                    'error'
-                )
+
+            console.log(result)
+
+            $('#listaTable').html('')
+            result.map(produto => {
+
+                $('#listaTable').prepend(`<tr>
+                            <td>
+                                ${produto.nome}
+                            </td>
+                            <td>
+                            ${produto.fornecedor}
+                            </td>
+                            <td>
+                            R$ ${produto.valor}
+                            </td>
+                            <td>
+                            ${produto.id_medida}
+                            </td>
+                            <td>
+                            ${produto.id_categoria}
+                            </td>
+                        </tr>`)
+            })
+
+
+
+
+        }).fail(function(e) {
+            console.log(e);
+        });
+    }
+    const loadFornecedores = () => {
+        $('#listaTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+                </div></center></td></tr>`)
+        let url = '/api/listaProdutoFornecedor/1';
+        $.ajax({
+            url: url,
+            type: "POST",
+        }).done(function(e) {
+            let result = JSON.parse(e)
+
+            labels = new Array()
+            dados = new Array()
+
+            let maiorValor = 0
+            result.map(fornecedor => {
+                let valorFloat = parseFloat(fornecedor.valor).toFixed(2)
+                labels.push(fornecedor.nome)
+                dados.push(valorFloat);
+
+                if( maiorValor < valorFloat){
+                    maiorValor =  valorFloat
+                }
+
+            })
+
+            gradientBarChartConfiguration = {
+                maintainAspectRatio: false,
+                legend: {
+                    display: false
+                },
+
+                tooltips: {
+                    backgroundColor: '#f5f5f5',
+                    titleFontColor: '#333',
+                    bodyFontColor: '#666',
+                    bodySpacing: 4,
+                    xPadding: 12,
+                    mode: "nearest",
+                    intersect: 0,
+                    position: "nearest"
+                },
+                responsive: true,
+                scales: {
+                    yAxes: [{
+
+                        gridLines: {
+                            drawBorder: false,
+                            color: 'rgba(29,140,248,0.1)',
+                            zeroLineColor: "transparent",
+                        },
+                        ticks: {
+                            suggestedMin: 0,
+                            suggestedMax: maiorValor * 2,
+                            padding: 20,
+                            fontColor: "#9e9e9e"
+                        }
+                    }],
+
+                    xAxes: [{
+
+                        gridLines: {
+                            drawBorder: false,
+                            color: 'rgba(29,140,248,0.1)',
+                            zeroLineColor: "transparent",
+                        },
+                        ticks: {
+                            padding: 20,
+                            fontColor: "#9e9e9e"
+                        }
+                    }]
+                }
+            };
+
+            data = {
+                labels: labels,
+                datasets: [{
+                    label: "",
+                    fill: true,
+                    backgroundColor: gradientStroke,
+                    hoverBackgroundColor: gradientStroke,
+                    borderColor: '#1f8ef1',
+                    borderWidth: 2,
+                    borderDash: [],
+                    borderDashOffset: 0.0,
+                    data: dados,
+                }]
             }
 
+            var ctx = document.getElementById("CountryChart").getContext("2d");
+
+            var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+
+            gradientStroke.addColorStop(1, 'rgba(29,140,248,0.2)');
+            gradientStroke.addColorStop(0.4, 'rgba(29,140,248,0.0)');
+            gradientStroke.addColorStop(0, 'rgba(29,140,248,0)'); //blue colors
+
+
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                responsive: true,
+                legend: {
+                    display: false
+                },
+                data: data,
+                options: gradientBarChartConfiguration
+            });
         }).fail(function(e) {
             console.log(e);
         });
@@ -166,6 +308,7 @@ $send->setAttributes(['id' => 'enviar']);
 
     $('#produtoSelect').addClass('text-white')
     $(document).ready(function() {
-       
+        loadProdutos()
+        loadFornecedores()
     });
 </script>

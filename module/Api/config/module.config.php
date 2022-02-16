@@ -27,10 +27,12 @@ return [
             'api' => [
                 'type'    => Segment::class,
                 'options' => [
-                    'route'    => '/api[/:action]',
+                    'route'    => '/api[/:action[/:id[/:id2]]]',
                     'defaults' => [
                         'controller' => Controller\IndexController::class,
                         'action'     => 'index',
+                        'id'     => '[0-9]+',
+                        'id2'     => '[0-9]+',
                     ],
                 ],
             ],

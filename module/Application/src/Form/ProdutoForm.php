@@ -11,7 +11,7 @@ use Api\Model\Produto;
 
 class ProdutoForm extends Form
 {
-    public function __construct($name)
+    public function __construct($name, $fornecedor = null)
     {
         parent::__construct($name);
 
@@ -24,7 +24,7 @@ class ProdutoForm extends Form
         ]);
 
         $produto = new Produto();
-        $produtos = $produto->fetchAllNome();
+            $produtos = $produto->fetchAllNome(null,null,'id','ASC',$fornecedor);
 
         $this->add([
             'type' => Element\Select::class,
@@ -34,11 +34,15 @@ class ProdutoForm extends Form
                 'value_options' => $produtos
             ],
         ]);
+        $this->add([
+            'type' => Element\Hidden::class,
+            'name' => 'fornecedorhidden',
+        ]);
 
         $medida = new Medida();
         $medidas = $medida->fetchAll();
-        
-        
+
+
 
         $this->add([
             'type' => Element\Select::class,
@@ -71,7 +75,7 @@ class ProdutoForm extends Form
 
         $this->add([
             'name' => 'quantidade',
-            'type' => Element\Number::class,
+            'type' => Element\Text::class,
             'options' => [
                 'label' => 'Quantidade: '
             ],

@@ -24,12 +24,32 @@ class IndexController extends AbstractActionController
         echo 'indexAction';
         return $request;
     }
+    public function insertProdutoFornecedorAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $fornecedor = new Fornecedor();
+        $fornecedor->__set('id', $request->getPost('fornecedorhidden'));
+        $fornecedor->__set('produto', $request->getPost('produto'));
+        $fornecedor->__set('valor', $request->getPost('valor'));
+        $result = $fornecedor->addProduto();
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
+
+        return $request;
+    }
     public function insertFornecedorAction()
     {
         $request = $this->getRequest();
         $this->layout()->setTemplate('layout/blank');
         $fornecedor = new Fornecedor();
         $fornecedor->__set('nome', $request->getPost('nome'));
+
         $result = $fornecedor->insert();
 
         if ($result) {
@@ -47,6 +67,7 @@ class IndexController extends AbstractActionController
         $this->layout()->setTemplate('layout/blank');
         $categoria = new Categoria();
         $categoria->__set('nome', $request->getPost('nome'));
+
         $result = $categoria->insert();
 
         if ($result) {
@@ -83,7 +104,6 @@ class IndexController extends AbstractActionController
         $produto->__set('nome', $request->getPost('nome'));
         $produto->__set('id_medida', $request->getPost('medida'));
         $produto->__set('quantidade', $request->getPost('quantidade'));
-        $produto->__set('id_fornecedor', $request->getPost('fornecedor'));
         $produto->__set('id_categoria', $request->getPost('categoria'));
         $produto->__set('valor', $request->getPost('valor'));
         $result = $produto->insert();
@@ -106,6 +126,7 @@ class IndexController extends AbstractActionController
         echo json_encode($produtos);
         return $request;
     }
+    
     public function listaProdutoAction()
     {
         $request = $this->getRequest();
@@ -115,13 +136,30 @@ class IndexController extends AbstractActionController
         echo json_encode($produtos);
         return $request;
     }
+    public function listaProdutoFornecedorAction()
+    {
+        $request = $this->getRequest();
+        $id = (int) $this->params()->fromRoute('id', 0);
+        $this->layout()->setTemplate('layout/blank');
+        $fornecedor = new Fornecedor();
+        $fornecedores = $fornecedor->fetchAllFornecedorList($id);
+        echo json_encode($fornecedores);
+        return $request;
+    }
     public function categoriasAction()
     {
         $request = $this->getRequest();
         $this->layout()->setTemplate('layout/blank');
         $categoria = new Categoria;
         $categorias = $categoria->fetchAll();
-        echo json_encode($categorias);
+        $retorno = array();
+        $count = 0;
+        foreach ($categorias as $key => $value) {
+            $retorno[$count]['id'] = $key;
+            $retorno[$count]['nome'] = $value;
+            $count++;
+        }
+        echo json_encode($retorno);
         return $request;
     }
     public function fornecedoresAction()
@@ -130,6 +168,25 @@ class IndexController extends AbstractActionController
         $this->layout()->setTemplate('layout/blank');
         $fornecedor = new Fornecedor;
         $fornecedores = $fornecedor->fetchAll();
+        echo json_encode($fornecedores);
+        return $request;
+    }
+    public function listaFornecedoresAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $fornecedor = new Fornecedor;
+        $fornecedores = $fornecedor->fetchAllFornecedoresProduto();
+        echo json_encode($fornecedores);
+        return $request;
+    }
+    public function listaFornecedorAction()
+    {
+        $request = $this->getRequest();
+        $id = (int) $this->params()->fromRoute('id', 0);
+        $this->layout()->setTemplate('layout/blank');
+        $fornecedor = new Fornecedor($id);
+        $fornecedores = $fornecedor->fetchFornecedorProduto();
         echo json_encode($fornecedores);
         return $request;
     }
@@ -153,6 +210,40 @@ class IndexController extends AbstractActionController
         }
         echo json_encode($arr_result);
 
+        return $request;
+    }
+    public function removerProdutoFornecedorAction()
+    {
+        $request = $this->getRequest();
+        $fornecedor = (int) $this->params()->fromRoute('id', 0);
+        $produto = (int) $this->params()->fromRoute('id2', 0);
+        $this->layout()->setTemplate('layout/blank');
+        $fornecedor = new Fornecedor($fornecedor);
+        $result = $fornecedor->removeProduto($produto);
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
+        return $request;
+    }
+    public function removerCategoriaAction()
+    {
+        $request = $this->getRequest();
+        $id = (int) $this->params()->fromRoute('id', 0);
+        $this->layout()->setTemplate('layout/blank');
+        $categoria = new Categoria();
+        $categoria->__set('id',$id);
+        $result = $categoria->delete();
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
         return $request;
     }
 }

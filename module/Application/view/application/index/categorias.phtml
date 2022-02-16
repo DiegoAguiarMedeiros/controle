@@ -1,0 +1,205 @@
+
+<?php
+
+
+$categoriaForm = $this->categoriaForm;
+$categoriaForm->prepare();
+$categoriaForm->setAttribute('method', 'post');
+
+$nomeCategoria = $categoriaForm->get('nome');
+$nomeCategoria->setAttributes(['class' => 'form-control  text-dark']);
+$nomeCategoria->setAttributes(['placeholder' => 'Categoria...']);
+$nomeCategoria->setAttributes(['required' => 'true']);
+
+$sendCategoria = $categoriaForm->get('send');
+$sendCategoria->setAttributes(['class' => 'btn btn-primary float-right']);
+$sendCategoria->setAttributes(['id' => 'enviarCategoria']);
+
+$categoriaForm = $this->categoriaForm;
+$categoriaForm->prepare();
+$categoriaForm->setAttribute('method', 'post');
+
+?>
+
+
+
+
+<div class="col-md-12">
+    <div class="card ">
+        <div class="card-header row">
+            <div class="card-header col ">
+                <h3 class="card-title"> Categorias </h3>
+            </div>
+            <div class="card-header col-5 row ">
+                <div class="col-6 mx-0 px-0 ">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoriaModal">
+                        <i class="tim-icons icon-bullet-list-67 tim-icons-lg"></i> CATEGORIA +
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table tablesorter " id="">
+                    <thead class=" text-primary">
+                        <tr>
+                            <th>
+                                Nome
+                            </th>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriasTable">
+                        <tr>
+                            <td>
+                                N/A
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="categoriaModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="categoriaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <?= $this->form()->openTag($categoriaForm); ?>
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoriaModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <?= $this->formLabel($nomeCategoria); ?>
+                    <?= $this->formElement($nomeCategoria); ?>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeCategoriaModal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <?= $this->formElement($sendCategoria); ?>
+            </div>
+            <?= $this->form()->closeTag(); ?>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const loadCategoria = () => {
+        $('#categoriasTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+                </div></center></td></tr>`)
+
+        let url = '/api/categorias';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+        }).fail((dados) => {
+            $('#categoriasTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+        }).done((dados) => {
+            $('#categoriasTable').html('')
+
+            console.log(dados)
+            dados.map(categoria => {
+                $('#categoriasTable').prepend(`<tr>
+                            <td>
+                                ${categoria.nome}
+                            </td>
+                            <td>
+                            <i onClick="removerCategoria(${categoria.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>
+                            </td>
+                        </tr>`)
+            })
+
+        })
+
+    }
+
+
+    const removerCategoria = (categoria) => {
+        let url = '/api/removerCategoria/' + categoria;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+        }).fail((dados) => {
+            console.log(dados)
+            $('#categoriasTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+        }).done((dados) => {
+            if (dados.success == 1) {
+                Swal.fire(
+                    'Eeeeee!',
+                    'Categoria Removida!',
+                    'success'
+                )
+                $('#closeProdutoModal').click();
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Categoria Não Removida!',
+                    'error'
+                )
+            }
+
+            loadCategoria()
+        })
+    }
+
+
+    $('#categoriaForm').submit(e => {
+        e.preventDefault()
+        let form = document.getElementById('categoriaForm')
+        let formData = new FormData(form)
+        let url = '/api/insertCategoria';
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+        }).done(function(e) {
+            let result = JSON.parse(e)
+            if (result.success == 1) {
+                $('#categoriaForm input').val("");
+                $('#enviarCategoria').val("Enviar");
+                Swal.fire(
+                    'Eeeeee!',
+                    'Categoria Cadastrada!',
+                    'success'
+                )
+                $('#closeCategoriaModal').click();
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Categoria Não Cadastrada!',
+                    'error'
+                )
+            }
+
+            loadCategoria()
+        }).fail(function(e) {
+            console.log(e);
+        });
+
+    })
+
+
+
+    $(document).ready(() => {
+
+        loadCategoria()
+        $('#quantidade').maskMoney({thousands:'', decimal:'.', precision:3});
+    })
+</script>
