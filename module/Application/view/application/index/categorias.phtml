@@ -78,6 +78,8 @@ $categoriaForm->setAttribute('method', 'post');
             <div class="modal-header">
                 <h5 class="modal-title" id="categoriaModalLabel">Modal title</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <input type="hidden" id="editInput" value="0">
+                <input type="hidden" id="idCategoria" name="id">
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -127,6 +129,7 @@ $categoriaForm->setAttribute('method', 'post');
                                 ${categoria.produtos}
                             </td>
                             <td>
+                            <i onClick="editarCategoria(${categoria.id},'${categoria.nome}')" class="tim-icons text-warning icon-pencil tim-icons-lg click" data-bs-toggle="modal" data-bs-target="#categoriaModal"></i>
                             ${deleteButton}
                             </td>
                         </tr>`)
@@ -167,12 +170,42 @@ $categoriaForm->setAttribute('method', 'post');
         })
     }
 
+    const limparEditar = () => {
+        $('#categoriaModalLabel').html('NOVO CATEGORIA')
+        $('#editInput').val(0)
+        $("input[name='nome']").val('')
+        $("select[name='medida']").val('');
+        $("input[name='quantidade']").val('')
+        $("select[name='categoria']").val('');
+    }
+
+    const editarCategoria = (categoria,nome) => {
+        
+        $('#editInput').val(1)
+        $('#idCategoria').val(categoria)
+        $("input[name='nome']").val(nome)
+
+        $('#categoriaModalLabel').html('EDITAR CATEGORIA')
+
+    }
 
     $('#categoriaForm').submit(e => {
         e.preventDefault()
+        let editInput = $('#editInput').val()
+        let url = '';
+        if(editInput == 0){
+            url = '/api/insertCategoria'
+        }else{
+            url = '/api/updateCategoria'
+        }
+        enviarCategoria(url)
+
+    })
+
+
+    const enviarCategoria = (url) => {
         let form = document.getElementById('categoriaForm')
         let formData = new FormData(form)
-        let url = '/api/insertCategoria';
         $.ajax({
             url: url,
             type: "POST",
@@ -180,6 +213,7 @@ $categoriaForm->setAttribute('method', 'post');
             processData: false,
             contentType: false,
         }).done(function(e) {
+            
             let result = JSON.parse(e)
             if (result.success == 1) {
                 $('#categoriaForm input').val("");
@@ -202,10 +236,7 @@ $categoriaForm->setAttribute('method', 'post');
         }).fail(function(e) {
             console.log(e);
         });
-
-    })
-
-
+    }
 
     $(document).ready(() => {
 

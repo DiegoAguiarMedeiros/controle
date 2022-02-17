@@ -102,7 +102,7 @@ class Categoria
         $result = $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
         return $result->getAffectedRows();
     }
-    public function editCategoria()
+    public function update()
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
@@ -111,7 +111,7 @@ class Categoria
         $update->set(['nome' => $this->nome]);
         $update->where(['id'=>$this->id]);
         $updateString = $sql->buildSqlString($update);
-        echo $updateString;
-        $adapter->query($updateString, $adapter::QUERY_MODE_EXECUTE);
+        $result = $adapter->query($updateString, $adapter::QUERY_MODE_EXECUTE);
+        return $result->getAffectedRows();
     }
 }
