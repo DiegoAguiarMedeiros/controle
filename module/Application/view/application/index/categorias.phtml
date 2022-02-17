@@ -46,6 +46,8 @@ $categoriaForm->setAttribute('method', 'post');
                             <th>
                                 Nome
                             </th>
+                            <th>
+                                Produtos
                             </th>
                         </tr>
                     </thead>
@@ -112,12 +114,20 @@ $categoriaForm->setAttribute('method', 'post');
 
             console.log(dados)
             dados.map(categoria => {
+                let deleteButton =''
+                if(categoria.produtos == 0){
+                    deleteButton = `<i onClick="removerCategoria(${categoria.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>` 
+                }
+
                 $('#categoriasTable').prepend(`<tr>
                             <td>
                                 ${categoria.nome}
                             </td>
                             <td>
-                            <i onClick="removerCategoria(${categoria.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>
+                                ${categoria.produtos}
+                            </td>
+                            <td>
+                            ${deleteButton}
                             </td>
                         </tr>`)
             })

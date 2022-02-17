@@ -47,6 +47,26 @@ class Categoria
         }
         return $categorias;
     }
+    public function fetchAllWithProdutc($limit = null, $offset = null, $coluna = 'id' , $order = 'ASC' )
+    {
+
+        
+        $con = new Connection();
+        $adapter = $con->getAdapter();
+        $selectString = "SELECT c.id, c.nome, COUNT(p.id) as produtos FROM categoria c LEFT JOIN produto p ON p.id_categoria = c.id GROUP BY c.id $limit $offset";
+        $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
+        $categorias = array();
+
+        foreach ($results->toArray() as $value) {
+            $categoria = array();
+            $categoria['id'] = $value['id'];
+            $categoria['nome'] = $value['nome'];
+            $categoria['produtos'] = $value['produtos'];
+            $categorias[] = $categoria;
+        }
+        return $categorias;
+
+    }
     
     public function fetch()
     {

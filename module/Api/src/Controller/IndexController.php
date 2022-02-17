@@ -151,15 +151,9 @@ class IndexController extends AbstractActionController
         $request = $this->getRequest();
         $this->layout()->setTemplate('layout/blank');
         $categoria = new Categoria;
-        $categorias = $categoria->fetchAll();
-        $retorno = array();
-        $count = 0;
-        foreach ($categorias as $key => $value) {
-            $retorno[$count]['id'] = $key;
-            $retorno[$count]['nome'] = $value;
-            $count++;
-        }
-        echo json_encode($retorno);
+        $categorias = $categoria->fetchAllWithProdutc();
+
+        echo json_encode($categorias);
         return $request;
     }
     public function fornecedoresAction()
