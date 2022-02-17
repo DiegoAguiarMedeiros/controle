@@ -61,6 +61,25 @@ class IndexController extends AbstractActionController
 
         return $request;
     }
+    public function updateFornecedorAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $fornecedor = new Fornecedor();
+        $fornecedor->__set('id', $request->getPost('id'));
+        $fornecedor->__set('nome', $request->getPost('nome'));
+
+        $result = $fornecedor->update();
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
+
+        return $request;
+    }
     public function insertCategoriaAction()
     {
         $request = $this->getRequest();
@@ -69,6 +88,25 @@ class IndexController extends AbstractActionController
         $categoria->__set('nome', $request->getPost('nome'));
 
         $result = $categoria->insert();
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
+
+        return $request;
+    }
+    public function updateCategoriaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $categoria = new Categoria();
+        $categoria->__set('id', $request->getPost('id'));
+        $categoria->__set('nome', $request->getPost('nome'));
+
+        $result = $categoria->update();
 
         if ($result) {
             $arr_result = ['success' => 1, 'error' => 0];
@@ -107,6 +145,28 @@ class IndexController extends AbstractActionController
         $produto->__set('id_categoria', $request->getPost('categoria'));
         $produto->__set('valor', $request->getPost('valor'));
         $result = $produto->insert();
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
+
+        return $request;
+    }
+    public function updateProdutoAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $produto = new Produto();
+        $produto->__set('id', $request->getPost('id'));
+        $produto->__set('nome', $request->getPost('nome'));
+        $produto->__set('id_medida', $request->getPost('medida'));
+        $produto->__set('quantidade', $request->getPost('quantidade'));
+        $produto->__set('id_categoria', $request->getPost('categoria'));
+        $produto->__set('valor', $request->getPost('valor'));
+        $result = $produto->update();
 
         if ($result) {
             $arr_result = ['success' => 1, 'error' => 0];
@@ -214,6 +274,40 @@ class IndexController extends AbstractActionController
         $this->layout()->setTemplate('layout/blank');
         $fornecedor = new Fornecedor($fornecedor);
         $result = $fornecedor->removeProduto($produto);
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
+        return $request;
+    }
+    public function removerProdutoAction()
+    {
+        $request = $this->getRequest();
+        $id = (int) $this->params()->fromRoute('id', 0);
+        $this->layout()->setTemplate('layout/blank');
+        $produto = new Produto();
+        $produto->__set('id',$id);
+        $result = $produto->delete();
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
+        return $request;
+    }
+    public function removerFornecedorAction()
+    {
+        $request = $this->getRequest();
+        $id = (int) $this->params()->fromRoute('id', 0);
+        $this->layout()->setTemplate('layout/blank');
+        $fornecedor = new Fornecedor();
+        $fornecedor->__set('id',$id);
+        $result = $fornecedor->delete();
 
         if ($result) {
             $arr_result = ['success' => 1, 'error' => 0];
