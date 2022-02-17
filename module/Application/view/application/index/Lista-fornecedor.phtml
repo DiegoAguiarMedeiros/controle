@@ -68,10 +68,12 @@ $sendFornecedor->setAttributes(['id' => 'enviarFornecedor']);
 <div class="modal fade" id="fornecedorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fornecedorModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-        <?= $this->form()->openTag($fornecedorForm); ?>
+            <?= $this->form()->openTag($fornecedorForm); ?>
             <div class="modal-header">
-                <h5 class="modal-title" id="fornecedorModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="fornecedorModalLabel">NOVO FORNECEDOR</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <input type="hidden" id="editInput" value="0">
+                <input type="hidden" id="idFornecedor" name="id">
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -80,7 +82,7 @@ $sendFornecedor->setAttributes(['id' => 'enviarFornecedor']);
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="closeFornecedorModal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="closeFornecedorModal" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 <?= $this->formElement($sendFornecedor); ?>
             </div>
             <?= $this->form()->closeTag(); ?>
@@ -106,6 +108,12 @@ $sendFornecedor->setAttributes(['id' => 'enviarFornecedor']);
             $('#fornecedorTable').html('')
 
             dados.map(fornecedor => {
+
+                let remover = ''
+
+                if (fornecedor.qtd == 0) {
+                    remover = `<i onClick="removerFornecedor(${fornecedor.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>`
+                }
                 $('#fornecedorTable').prepend(`<tr>
                             <td>
                                 ${fornecedor.nome}
@@ -117,6 +125,11 @@ $sendFornecedor->setAttributes(['id' => 'enviarFornecedor']);
                             <i class="tim-icons icon-notes"></i></a>
                             
                             </td>
+                            <td>
+                            <i onClick="editarFornecedor(${fornecedor.id},'${fornecedor.nome}')" class="tim-icons text-warning icon-pencil tim-icons-lg click" data-bs-toggle="modal" data-bs-target="#fornecedorModal"></i>
+                                
+                            ${remover}
+                            </td>
 
                         </tr>`)
             })
@@ -124,12 +137,42 @@ $sendFornecedor->setAttributes(['id' => 'enviarFornecedor']);
         })
 
     }
-    
+
+    const limparEditar = () => {
+        $('#fornecedorModalLabel').html('NOVO FORNECEDOR')
+        $('#editInput').val(0)
+        $("input[name='nome']").val('')
+        $("select[name='medida']").val('');
+        $("input[name='quantidade']").val('')
+        $("select[name='categoria']").val('');
+    }
+
+    const editarFornecedor = (fornecedor,nome) => {
+        
+        $('#editInput').val(1)
+        $('#idFornecedor').val(fornecedor)
+        $("input[name='nome']").val(nome)
+
+        $('#fornecedorModalLabel').html('EDITAR FORNECEDOR')
+
+    }
+
     $('#fornecedorForm').submit(e => {
         e.preventDefault()
+        let editInput = $('#editInput').val()
+        let url = ''
+        if(editInput == 0){
+            url = '/api/insertFornecedor'
+        }else{
+            url = '/api/updateFornecedor'
+        }
+        enviarFornecedor(url)
+
+    })
+
+    const enviarFornecedor = (url) => {
         let form = document.getElementById('fornecedorForm')
         let formData = new FormData(form)
-        let url = '/api/insertFornecedor';
         $.ajax({
             url: url,
             type: "POST",
@@ -137,6 +180,7 @@ $sendFornecedor->setAttributes(['id' => 'enviarFornecedor']);
             processData: false,
             contentType: false,
         }).done(function(e) {
+            console.log(e)
             let result = JSON.parse(e)
             if (result.success == 1) {
                 $('#fornecedorForm input').val("");
@@ -159,9 +203,40 @@ $sendFornecedor->setAttributes(['id' => 'enviarFornecedor']);
         }).fail(function(e) {
             console.log(e);
         });
+    }
 
-    })
 
+    const removerFornecedor = (fornecedor) => {
+
+        let url = '/api/removerFornecedor/' + fornecedor;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+        }).fail((dados) => {
+            console.log(dados)
+            $('#fornecedorsTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+        }).done((dados) => {
+            console.log(dados)
+            if (dados.success == 1) {
+                Swal.fire(
+                    'Eeeeee!',
+                    'Fornecedor Removido!',
+                    'success'
+                )
+                $('#closefornecedorModal').click();
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Fornecedor Não Removido!',
+                    'error'
+                )
+            }
+
+            loadFornecedores()
+        })
+    }
 
     $(document).ready(() => {
 

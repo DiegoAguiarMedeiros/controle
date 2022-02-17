@@ -198,13 +198,11 @@ class Fornecedor
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $sql = new Sql($adapter);
-        $delete = $sql->delete('fornecedor');
-        $delete->where(['id'=>$this->id]);
-        $deleteString = $sql->buildSqlString($delete);
-        $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
+        $deleteString = "DELETE FROM fornecedor WHERE id = $this->id";
+        $result = $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
+        return $result->getAffectedRows();
     }
-    public function editfornecedor()
+    public function update()
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
@@ -213,7 +211,7 @@ class Fornecedor
         $update->set(['nome' => $this->nome]);
         $update->where(['id'=>$this->id]);
         $updateString = $sql->buildSqlString($update);
-        echo $updateString;
-        $adapter->query($updateString, $adapter::QUERY_MODE_EXECUTE);
+        $result = $adapter->query($updateString, $adapter::QUERY_MODE_EXECUTE);
+        return $result->getAffectedRows();
     }
 }
