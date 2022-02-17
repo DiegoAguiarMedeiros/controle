@@ -32,6 +32,8 @@ $produtoForm = $this->produtoForm;
 $produtoForm->prepare();
 $produtoForm->setAttribute('method', 'post');
 
+
+
 $nome = $produtoForm->get('nome');
 $nome->setAttributes(['class' => 'form-control  text-dark']);
 $nome->setAttributes(['placeholder' => 'Produto...']);
@@ -56,10 +58,10 @@ $quantidade->setAttributes(['required' => 'true']);
 $quantidade->setAttributes(['id' => 'quantidade']);
 
 
-
 $send = $produtoForm->get('send');
 $send->setAttributes(['class' => 'btn btn-primary float-right']);
 $send->setAttributes(['id' => 'enviar']);
+
 ?>
 
 
@@ -125,7 +127,9 @@ $send->setAttributes(['id' => 'enviar']);
             <?= $this->form()->openTag($produtoForm); ?>
             <div class="modal-header">
                 <h5 class="modal-title" id="produtoModalLabel">NOVO PRODUTO</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick="limparEditar()"></button>
+                <input type="hidden" id="editInput" value="0">
+                <input type="hidden" id="idProduto" name="id">
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -147,13 +151,14 @@ $send->setAttributes(['id' => 'enviar']);
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="closeProdutoModal" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                <button onClick="limparEditar()" type="button" id="closeProdutoModal" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
                 <?= $this->formElement($send); ?>
             </div>
             <?= $this->form()->closeTag(); ?>
         </div>
     </div>
 </div>
+
 
 
 
@@ -175,15 +180,19 @@ $send->setAttributes(['id' => 'enviar']);
             $('#produtoTable').html('')
 
             dados.map(produto => {
+                console.log(produto)
                 $('#produtoTable').prepend(`<tr>
-                            <td>
-                                ${produto.nome}
-                            </td>
+                            <td id="nome${produto.id}">${produto.nome}</td>
                             <td>
                             ${produto.id_medida}
                             </td>
                             <td>
                             ${produto.id_categoria}
+                            </td>
+                            <td>
+
+                                <i onClick="editarProduto(${produto.id},'${produto.nome}','${produto.id_medida}','${produto.id_categoria}')" class="tim-icons text-warning icon-pencil tim-icons-lg click" data-bs-toggle="modal" data-bs-target="#produtoModal"></i>
+                                <i onClick="removerProduto(${produto.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>
                             </td>
                         </tr>`)
             })
@@ -194,9 +203,21 @@ $send->setAttributes(['id' => 'enviar']);
 
     $('#produtoForm').submit(e => {
         e.preventDefault()
+        
+
+        let editInput = $('#editInput').val()
+        let url = ''
+        if(editInput == 0){
+            url = '/api/insertProduto'
+        }else{
+            url = '/api/updateProduto'
+        }
+        enviarProduto(url)
+    })
+    const enviarProduto = (url) => {
         let form = document.getElementById('produtoForm')
         let formData = new FormData(form)
-        let url = '/api/insertProduto';
+       
         $.ajax({
             url: url,
             type: "POST",
@@ -226,11 +247,67 @@ $send->setAttributes(['id' => 'enviar']);
         }).fail(function(e) {
             console.log(e);
         });
+    }
 
-    })
+    const limparEditar = () => {
+        $('#produtoModalLabel').html('NOVO PRODUTO')
+        $('#editInput').val(0)
+        $("input[name='nome']").val('')
+        $("select[name='medida']").val('');
+        $("input[name='quantidade']").val('')
+        $("select[name='categoria']").val('');
+    }
+    const editarProduto = (produto,nome,medida,categoria) => {
+        
+        $('#editInput').val(1)
+        $('#idProduto').val(produto)
+        
+        value = medida.split(' ')
+        let selectMedia = $("input[name='medida']")
+        console.log(selectMedia)
+
+        $("select[name='medida']").val( $('option:contains("'+value[1]+'")').val() );
+        $("input[name='nome']").val(nome)
+        $("input[name='quantidade']").val(value[0])
+        $("select[name='categoria']").val( $('option:contains("'+categoria+'")').val() );
+
+        $('#produtoModalLabel').html('EDITAR PRODUTO')
+
+    }
+    const removerProduto = (produto) => {
+
+        let url = '/api/removerProduto/' + produto;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+        }).fail((dados) => {
+            console.log(dados)
+            $('#produtosTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+        }).done((dados) => {
+            if (dados.success == 1) {
+                Swal.fire(
+                    'Eeeeee!',
+                    'Produto Removido!',
+                    'success'
+                )
+                $('#closeProdutoModal').click();
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Produto Não Removido!',
+                    'error'
+                )
+            }
+
+            loadProduto()
+        })
+    }
+
     
 
-
+    
     $(document).ready(() => {
 
         loadProduto()

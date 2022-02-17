@@ -164,6 +164,24 @@ class Produto
 
         return $result->getAffectedRows();
     }
+    public function update()
+    {
+        $con = new Connection();
+        $adapter = $con->getAdapter();
+        $sql = new Sql($adapter);
+        $update = $sql->update('produto');
+        $update->set([
+            'nome' => $this->nome,
+            'id_medida' => $this->id_medida,
+            'quantidade' => $this->quantidade,
+            'id_categoria' => $this->id_categoria,
+        ]);
+        $update->where(['id' => $this->id]);
+        $updateString = $sql->buildSqlString($update);
+        $result = $adapter->query($updateString, $adapter::QUERY_MODE_EXECUTE);
+
+        return $result->getAffectedRows();
+    }
     public function insertLista()
     {
         $con = new Connection();
@@ -181,11 +199,9 @@ class Produto
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $sql = new Sql($adapter);
-        $delete = $sql->delete('produto');
-        $delete->where(['id' => $this->id]);
-        $deleteString = $sql->buildSqlString($delete);
-        $adapter->query($deleteString, $adapter::QUERY_MODE_EXECUTE);
+        $deleteString = "DELETE FROM produto WHERE id = $this->id";
+        $result = $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
+        return $result->getAffectedRows();
     }
     public function editHome()
     {

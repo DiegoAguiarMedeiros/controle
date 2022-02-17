@@ -49,6 +49,7 @@ class ProdutoForm extends Form
             'name' => 'medida',
             'options' => [
                 'label' => 'Medida: ',
+                'empty_option' => 'SELECIONAR MEDIDA',
                 'value_options' => $medidas
             ],
         ]);
@@ -59,16 +60,19 @@ class ProdutoForm extends Form
             'name' => 'categoria',
             'options' => [
                 'label' => 'Categoria: ',
+                'empty_option' => 'SELECIONAR CATEGORIA',
                 'value_options' => $categorias
             ],
         ]);
         $fornecedor = new Fornecedor();
         $fornecedores = $fornecedor->fetchAll();
+
         $this->add([
             'type' => Element\Select::class,
             'name' => 'fornecedor',
             'options' => [
                 'label' => 'Fornecedor: ',
+                'empty_option' => 'SELECIONAR FORNECEDOR',
                 'value_options' => $fornecedores
             ],
         ]);
