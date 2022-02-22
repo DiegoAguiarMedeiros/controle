@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
  * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
@@ -14,10 +15,15 @@ use Application\Form\CategoriaForm;
 use Application\Form\ProdutoForm;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Api\Model\Produto;
 
 class IndexController extends AbstractActionController
 {
     public function indexAction()
+    {
+        return new ViewModel();
+    }
+    public function estoqueAction()
     {
         return new ViewModel();
     }
@@ -28,7 +34,7 @@ class IndexController extends AbstractActionController
         $categoriaForm = new CategoriaForm('categoriaForm');
         $produtoForm = new ProdutoForm('produtoForm');
         if (!$request->isPost()) {
-            return new ViewModel(['produtoForm' => $produtoForm,'categoriaForm' => $categoriaForm,'fornecedorForm' => $fornecedorForm]);
+            return new ViewModel(['produtoForm' => $produtoForm, 'categoriaForm' => $categoriaForm, 'fornecedorForm' => $fornecedorForm]);
         }
         return new ViewModel();
     }
@@ -36,12 +42,13 @@ class IndexController extends AbstractActionController
     {
         $request = $this->getRequest();
         $produtoForm = new ProdutoForm('produtoForm');
+        $listaForm = new ListaForm('listaForm');
         if (!$request->isPost()) {
-            return new ViewModel(['produtoForm' => $produtoForm]);
+            return new ViewModel(['produtoForm' => $produtoForm, 'listaForm' => $listaForm]);
         }
         return new ViewModel();
     }
-    public function ListaFornecedorAction()
+    public function listaFornecedorAction()
     {
         $request = $this->getRequest();
         $fornecedorForm = new FornecedorForm('fornecedorForm');
@@ -63,10 +70,30 @@ class IndexController extends AbstractActionController
     {
         $request = $this->getRequest();
         $id = (int) $this->params()->fromRoute('id', 0);
-        $produtoForm = new ProdutoForm('produtoForm',$id);
+        $produtoForm = new ProdutoForm('produtoForm', $id);
         if (!$request->isPost()) {
-            return new ViewModel(['produtoForm' => $produtoForm,'fornecedor'=>$id]);
+            return new ViewModel(['produtoForm' => $produtoForm, 'fornecedor' => $id]);
         }
         return new ViewModel();
+    }
+    public function imprimirListaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $produto = new Produto();
+        $produtos = $produto->fetchAllList();
+
+        $table = '<table width="100%" onload="print()">';
+        $tHead = '<tHead><tr><th>Quantidade</th><th>Produto</th><th>Medida</th><tr></tHead>';
+        $tBody  = '<tBody>';
+        foreach ($produtos as $key => $value) {
+            $tBody .= "<tr><td Align='center'>".$value['quantidade']."</td><td Align='center'>".$value['nome']."</td><td Align='center'>".$value['id_medida']."</td></tr>";
+        }
+        $tBody .= '</tBody>'; 
+
+        $table .= $tHead.$tBody.'</table>';
+
+        echo $table;
+        return $request;
     }
 }

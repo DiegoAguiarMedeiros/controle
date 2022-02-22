@@ -1,34 +1,24 @@
-body {
-    padding-top: 60px;
-    padding-bottom: 40px;
+.block-fixed {
+    max-height: 500px !important;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
-.zf-green {
-    color: #68b604;
+*::-webkit-scrollbar {
+    width: 8px;
+    /* width of the entire scrollbar */
 }
 
-
-.btn-success {
-    background-color: #57a900;
-    background-image: -moz-linear-gradient(top, #70d900, #57a900);
-    background-image: -ms-linear-gradient(top, #70d900, #57a900);
-    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#70d900), to(#57a900));
-    background-image: -webkit-linear-gradient(top, #70d900, #57a900);
-    background-image: -o-linear-gradient(top, #70d900, #57a900);
-    background-image: linear-gradient(top, #70d900, #57a900);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#70d900', endColorstr='#57a900', GradientType=0);
+*::-webkit-scrollbar-track {
+    background: #27293d;
+    /* color of the tracking area */
 }
 
-.btn-success:hover,
-.btn-success:active,
-.btn-success.active,
-.btn-success.disabled,
-.btn-success[disabled] {
-    background-color: #57a900;
-}
-
-div.container a.navbar-brand > img {
-    display: inline;
-    margin-right: 4px;
-    margin-top: -2px;
+*::-webkit-scrollbar-thumb {
+    background-color: #ffffffcc;
+    /* color of the scroll thumb */
+    border-radius: 20px;
+    /* roundness of the scroll thumb */
+    border: 3px solid #27293d;
+    /* creates padding around scroll thumb */
 }

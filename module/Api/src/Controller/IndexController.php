@@ -24,6 +24,28 @@ class IndexController extends AbstractActionController
         echo 'indexAction';
         return $request;
     }
+    public function estoqueAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $produto = new Produto();
+        $produtos = $produto->produtosEmEstoque();
+        return $request;
+    }
+    public function estoqueEntradaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        echo 'estoqueEntrada';
+        return $request;
+    }
+    public function estoqueSaidaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        echo 'estoqueSaida';
+        return $request;
+    }
     public function insertProdutoFornecedorAction()
     {
         $request = $this->getRequest();
@@ -186,7 +208,16 @@ class IndexController extends AbstractActionController
         echo json_encode($produtos);
         return $request;
     }
-    
+    public function produtosParaListaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $produto = new Produto();
+        $produtos = $produto->fetchAllWithFornecedor();
+        echo json_encode($produtos);
+        return $request;
+    }
+
     public function listaProdutoAction()
     {
         $request = $this->getRequest();
@@ -248,14 +279,32 @@ class IndexController extends AbstractActionController
     {
         $request = $this->getRequest();
         $this->layout()->setTemplate('layout/blank');
-        $listaProdutos = $request->getPost('produto');
+        $id = $request->getPost('produtoLista');
+        $quantidade = $request->getPost('quantidade');
 
+        $produto = new Produto($id);
+        $produto->fetchQuantidade();
+        $result = $produto->insertLista($quantidade);
 
-        foreach ($listaProdutos as $produtoId) {
-            $produto = new Produto($produtoId);
-            $produto->fetch();
-            $result = $produto->insertLista();
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
         }
+        echo json_encode($arr_result);
+
+        return $request;
+    }
+    public function removerListaProdutoAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $id = $request->getPost('id');
+        $quantidade = $request->getPost('quantidade');
+
+        $produto = new Produto($id);
+        $produto->fetchQuantidade();
+        $result = $produto->removeLista($quantidade);
 
         if ($result) {
             $arr_result = ['success' => 1, 'error' => 0];
@@ -289,7 +338,7 @@ class IndexController extends AbstractActionController
         $id = (int) $this->params()->fromRoute('id', 0);
         $this->layout()->setTemplate('layout/blank');
         $produto = new Produto();
-        $produto->__set('id',$id);
+        $produto->__set('id', $id);
         $result = $produto->delete();
 
         if ($result) {
@@ -306,7 +355,7 @@ class IndexController extends AbstractActionController
         $id = (int) $this->params()->fromRoute('id', 0);
         $this->layout()->setTemplate('layout/blank');
         $fornecedor = new Fornecedor();
-        $fornecedor->__set('id',$id);
+        $fornecedor->__set('id', $id);
         $result = $fornecedor->delete();
 
         if ($result) {
@@ -323,7 +372,7 @@ class IndexController extends AbstractActionController
         $id = (int) $this->params()->fromRoute('id', 0);
         $this->layout()->setTemplate('layout/blank');
         $categoria = new Categoria();
-        $categoria->__set('id',$id);
+        $categoria->__set('id', $id);
         $result = $categoria->delete();
 
         if ($result) {

@@ -31,6 +31,18 @@ class ProdutoForm extends Form
             'name' => 'produto',
             'options' => [
                 'label' => 'Produto: ',
+                'empty_option' => 'SELECIONAR PRODUTO',
+                'value_options' => $produtos
+            ],
+        ]);
+            $produtos = $produto->fetchAllNomeWithFornecedor();
+
+        $this->add([
+            'type' => Element\Select::class,
+            'name' => 'produtoLista',
+            'options' => [
+                'label' => 'Produto: ',
+                'empty_option' => 'SELECIONAR PRODUTO',
                 'value_options' => $produtos
             ],
         ]);
@@ -74,6 +86,14 @@ class ProdutoForm extends Form
                 'label' => 'Fornecedor: ',
                 'empty_option' => 'SELECIONAR FORNECEDOR',
                 'value_options' => $fornecedores
+            ],
+        ]);
+
+        $this->add([
+            'quantidade' => 'quantidade',
+            'type' => Element\Number::class,
+            'options' => [
+                'label' => 'Quantidade:',
             ],
         ]);
 

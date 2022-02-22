@@ -64,22 +64,42 @@ class Produto
         }
         return $produtos;
     }
+    public function fetchAllWithFornecedor($limit = null, $offset = null, $coluna = 'id', $order = 'ASC')
+    {
+
+        $con = new Connection();
+        $adapter = $con->getAdapter();
+        $strLimit = '';
+        if ($limit) {
+            $strLimit = "LIMIT $limit";
+        }
+        $strOffset = '';
+        if ($offset) {
+            $strOffset = "OFFSET $offset";
+        }
+        $order = "ORDER BY $coluna $order";
+
+        $selectString = "SELECT p.id, p.nome, m.medida, p.quantidade, c.nome as categoria FROM produto p JOIN produto_fornecedor pf ON pf.id_produto = p.id JOIN fornecedor f ON f.id = pf.id_fornecedor JOIN medida m ON m.id = p.id_medida JOIN categoria c ON c.id = p.id_categoria GROUP BY p.id";
+
+        $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
+        $produtos = array();
+
+        foreach ($results->toArray() as $value) {
+            $produto = array();
+            $produto['id'] = $value['id'];
+            $produto['nome'] = $value['nome'];
+            $produto['id_medida'] = $value['quantidade'] . ' ' . $value['medida'];
+            $produto['id_categoria'] = $value['categoria'];
+            $produtos[] = $produto;
+        }
+        return $produtos;
+    }
     public function fetchAllList($limit = null, $offset = null, $coluna = 'id_produto', $order = 'ASC')
     {
 
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $sql = new Sql($adapter);
-        $select = $sql->select('lista_produto');
-
-        if ($limit) {
-            $select->limit($limit);
-        }
-        if ($offset) {
-            $select->offset($offset);
-        }
-        $select->order("$coluna $order");
-        $selectString = $sql->buildSqlString($select);
+        $selectString = 'SELECT p.id as id_produto, p.nome, (SELECT f.nome FROM produto_fornecedor pf JOIN fornecedor f ON pf.id_fornecedor = f.id WHERE pf.id_produto = p.id LIMIT 1) as fornecedor, (SELECT pf.valor FROM produto_fornecedor pf JOIN fornecedor f ON pf.id_fornecedor = f.id WHERE pf.id_produto = p.id LIMIT 1) as valor, SUM(l.quantidade) as quantidade FROM produto p JOIN lista_produto l ON l.id_produto = p.id GROUP BY p.id;';
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
         $produtos = array();
 
@@ -130,20 +150,53 @@ class Produto
         }
         return $produtos;
     }
+    public function fetchAllNomeWithFornecedor()
+    {
+
+        $con = new Connection();
+        $adapter = $con->getAdapter();
+
+
+        $selectString = "SELECT p.id, p.nome FROM produto p JOIN produto_fornecedor pf ON pf.id_produto = p.id JOIN fornecedor f ON pf.id_fornecedor = f.id GROUP BY p.id";
+        $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
+        $produtos = array();
+
+        foreach ($results->toArray() as $value) {
+            $produtos[$value['id']] = $value['nome'];
+        }
+        return $produtos;
+    }
 
     public function fetch()
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
 
-        $selectString = "SELECT p.nome, m.medida, p.quantidade, c.nome as categoria FROM produto p JOIN medida m ON m.id = p.id_medida JOIN categoria c ON c.id = p.id_categoria WHERE p.id =$this->id ";
+        $selectString = "SELECT p.nome, m.medida, p.quantidade, c.nome as categoria FROM produto p JOIN medida m ON m.id = p.id_medida JOIN categoria c ON c.id = p.id_categoria WHERE p.id = " . $this->id;
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
 
         foreach ($results->toArray() as $value) {
             $this->__set('nome', $value['nome']);
-            $this->__set('id_medida',  $value['quantidade'] . ' ' . $value['medida']);
+            $this->__set('id_medida',  $value['quantidade'] . '' . $value['medida']);
             $this->__set('quantidade', $value['quantidade']);
             $this->__set('id_categoria', $value['categoria']);
+        }
+    }
+    public function fetchQuantidade()
+    {
+        $con = new Connection();
+        $adapter = $con->getAdapter();
+
+        $selectString = "SELECT l.quantidade FROM lista_produto l WHERE l.id_produto = " . $this->id;
+        $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
+
+        foreach ($results->toArray() as $value) {
+            if ($value['quantidade']) {
+
+                $this->__set('quantidade', $value['quantidade']);
+            } else {
+                $this->__set('quantidade', 0);
+            }
         }
     }
 
@@ -182,17 +235,38 @@ class Produto
 
         return $result->getAffectedRows();
     }
-    public function insertLista()
+    public function insertLista($quantidade)
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $insert = $sql->insert('lista_produto');
-        $insert->values([
-            'id_produto' => $this->id,
-        ]);
-        $insertString = $sql->buildSqlString($insert);
-        $result = $adapter->query($insertString, $adapter::QUERY_MODE_EXECUTE);
+        if ($this->quantidade == 0) {
+
+            $insert = $sql->insert('lista_produto');
+            $insert->values([
+                'id_produto' => $this->id,
+                'quantidade' => $quantidade,
+            ]);
+            $insertString = $sql->buildSqlString($insert);
+            $result = $adapter->query($insertString, $adapter::QUERY_MODE_EXECUTE);
+        } else {
+            $result = $this->editProdutoLista(true, $quantidade);
+        }
+        return $result->getAffectedRows();
+    }
+    public function removeLista($quantidade)
+    {
+        $con = new Connection();
+        $adapter = $con->getAdapter();
+        $sql = new Sql($adapter);
+        if ($this->quantidade <= $quantidade) {
+            $adapter = $con->getAdapter();
+            $deleteString = "DELETE FROM lista_produto WHERE id_produto = $this->id";
+            $result = $adapter->query($deleteString, $adapter::QUERY_MODE_EXECUTE);
+        } else if ($this->quantidade > 0) {
+            $result = $this->editProdutoLista(false, $quantidade);
+        }
+
         return $result->getAffectedRows();
     }
     public function delete()
@@ -200,25 +274,27 @@ class Produto
         $con = new Connection();
         $adapter = $con->getAdapter();
         $deleteString = "DELETE FROM produto WHERE id = $this->id";
-        $result = $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
+        $result = $adapter->query($deleteString, $adapter::QUERY_MODE_EXECUTE);
         return $result->getAffectedRows();
     }
-    public function editHome()
+    public function editProdutoLista($adicionar, $quantidade)
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $update = $sql->update('produto');
-        if ($this->home == 0) {
-            $this->home = 1;
+        $update = $sql->update('lista_produto');
+
+        if ($adicionar) {
+            $quantidadeFinal = $this->quantidade + $quantidade;
         } else {
-            $this->home = 0;
+            $quantidadeFinal = $this->quantidade - $quantidade;
         }
 
-        $update->set(['home' => $this->home]);
-        $update->where(['id' => $this->id]);
+        $update->set(['quantidade' =>  $quantidadeFinal]);
+        $update->where(['id_produto' => $this->id]);
         $updateString = $sql->buildSqlString($update);
-        echo $updateString;
-        $adapter->query($updateString, $adapter::QUERY_MODE_EXECUTE);
+        // echo $updateString;
+        $result = $adapter->query($updateString, $adapter::QUERY_MODE_EXECUTE);
+        return $result;
     }
 }

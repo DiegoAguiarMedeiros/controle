@@ -12,10 +12,10 @@ class ListaForm extends Form
         parent::__construct($name);
 
         $this->add([
-            'name' => 'nome',
-            'type' => Element\Text::class,
+            'name' => 'quantidade',
+            'type' => Element\Number::class,
             'options' => [
-                'label' => 'Nome:',
+                'label' => 'Quantidade:',
             ],
         ]);
 

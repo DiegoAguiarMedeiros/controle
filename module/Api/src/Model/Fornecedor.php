@@ -53,12 +53,26 @@ class Fornecedor
         }
         return $fornecedores;
     }
+    public function fetchTotalFornecedorList($id)
+    {
+
+        $con = new Connection();
+        $adapter = $con->getAdapter();
+        $selectString = "SELECT SUM(tl.quantidade* tpf.valor) as total FROM lista_produto tl JOIN produto_fornecedor tpf ON tpf.id_produto = tl.id_produto WHERE tpf.id_fornecedor = $id;";
+        $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
+        $fornecedor = array();
+
+        foreach ($results->toArray() as $value) {
+            $fornecedor['valor'] = $value['total'];
+        }
+        return $fornecedor['valor'];
+    }
     public function fetchAllFornecedorList($lista)
     {
 
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $selectString = "SELECT f.id, f.nome, SUM(pf.valor) as valor FROM fornecedor f JOIN produto_fornecedor pf ON f.id = pf.id_fornecedor JOIN lista_produto l ON l.id_produto = pf.id_produto WHERE l.id_lista = $lista GROUP BY f.id";
+        $selectString = "SELECT f.id, f.nome  FROM fornecedor f JOIN produto_fornecedor pf ON f.id = pf.id_fornecedor JOIN lista_produto l ON l.id_produto = pf.id_produto WHERE l.id_lista = $lista GROUP BY f.id";
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
         $fornecedores = array();
 
@@ -66,7 +80,7 @@ class Fornecedor
             $fornecedor = array();
             $fornecedor['id'] = $value['id'];
             $fornecedor['nome'] = $value['nome'];
-            $fornecedor['valor'] = $value['valor'];
+            $fornecedor['valor'] = $this->fetchTotalFornecedorList($fornecedor['id']);
             $fornecedores[] = $fornecedor;
         }
         return $fornecedores;

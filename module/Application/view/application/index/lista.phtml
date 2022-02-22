@@ -4,44 +4,80 @@ $produtoForm = $this->produtoForm;
 $produtoForm->prepare();
 $produtoForm->setAttribute('method', 'post');
 
-$nome = $produtoForm->get('produto');
+$nome = $produtoForm->get('produtoLista');
 $nome->setAttributes(['class' => 'form-control  text-dark']);
-$nome->setAttributes(['id' => 'produtoSelect']);
+$nome->setAttributes(['placeholder' => 'fornecedor...']);
 $nome->setAttributes(['required' => 'true']);
-$nome->setAttributes(['multiple' => 'true']);
-$nome->setAttributes(['aria-label ' => 'multiple select']);
+
+$quantidade = $produtoForm->get('quantidade');
+$quantidade->setAttributes(['class' => 'form-control  text-dark']);
+$quantidade->setAttributes(['placeholder' => 'quantidade...']);
+$quantidade->setAttributes(['id' => 'quantidade']);
+$quantidade->setAttributes(['required' => 'true']);
 
 $send = $produtoForm->get('send');
 $send->setAttributes(['class' => 'btn btn-primary float-right']);
 $send->setAttributes(['id' => 'enviar']);
 
+
+$listaForm = $this->listaForm;
+$listaForm->prepare();
+$listaForm->setAttribute('method', 'post');
+// $listaForm->setAttribute('action', '/api/removerListaProduto');
+
+
+$quantidade = $listaForm->get('quantidade');
+$quantidade->setAttributes(['class' => 'form-control  text-dark']);
+$quantidade->setAttributes(['placeholder' => 'quantidade...']);
+$quantidade->setAttributes(['id' => 'quantidade']);
+$quantidade->setAttributes(['required' => 'true']);
+
+
+$sendLista = $listaForm->get('send');
+$sendLista->setAttributes(['class' => 'btn btn-primary float-right']);
+$sendLista->setAttributes(['id' => 'enviarLista']);
+
 ?>
 
 <div class="col-12 row p-4" style="min-height: 400px;">
-    <div class="col-md-6">
-        <div class="card h-100">
-            <div class="card-header row">
+    <!-- <div class="col-xl-6 col-lg-12 ">
+        <div class="card h-100  p-0 m-0 block-fixed">
+            <div class="card-header row ">
                 <div class="card-header col-10 ">
                     <h3 class="card-title"> Produtos </h3>
                 </div>
-                <div class="col-md-12">
-                    <?= $this->form()->openTag($produtoForm); ?>
-                    <?= $this->formElement($nome); ?>
-                    <?= $this->formElement($send); ?>
-                    <?= $this->form()->closeTag(); ?>
+                <div class="card-body ">
+                    <div class="table-full-width table-responsive ">
+                        <table class="table">
+                            <tbody id="produtoTable">
+                                <tr>
+                                    <td>
+                                        <p class="title">-</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
-    <div class="col-lg-6">
+    <div class="col-12 ">
         <div class="card card-tasks h-100">
-            <div class="card-header ">
-                <h3 class="title d-inline">Lista</h3>
+            <div class="card-header row">
+                <div class="card-header col ">
+                    <h3 class="card-title" id="forncededorTitle"> Lista </h3>
+                </div>
+                <div class="card-header col-3 mx-0 px-0">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#listaModal">
+                        <i class="tim-icons icon-bag-16 tim-icons-lg"></i> PRODUTO +
+                    </button>
 
+                </div>
             </div>
-            <div class="card-body ">
-                <div class="table-full-width table-responsive">
+            <div class="card-body">
+                <div class="table-full-width table-responsive ">
                     <table class="table">
                         <tbody id="listaTable">
                             <tr>
@@ -64,6 +100,7 @@ $send->setAttributes(['id' => 'enviar']);
                             </tr>
                         </tbody>
                     </table>
+                    <a href="/application/imprimirLista" target="_blank" class="btn btn-primary d-none" id="btnImprimir">IMPRIMIR</a>
                 </div>
             </div>
         </div>
@@ -73,7 +110,7 @@ $send->setAttributes(['id' => 'enviar']);
     <div class="col-lg-12">
         <div class="card card-chart">
             <div class="card-header">
-                <h3 class="card-title">Fornecedores</h3>
+                <h3 class="card-title">MELHOR PREÇO</h3>
             </div>
             <div class="card-body">
                 <div class="chart-area">
@@ -91,18 +128,55 @@ $send->setAttributes(['id' => 'enviar']);
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title" id="listaModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="listaModalLabel">Adicionar Na Lista</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <?= $this->form()->openTag($produtoForm); ?>
             <div class="modal-body">
-                <div class="form-group">
-
+                <div class="chart-area">
+                    <div class="form-group">
+                        <?= $this->formLabel($nome); ?>
+                        <?= $this->formElement($nome); ?>
+                    </div>
+                    <div class="form-group">
+                        <?= $this->formLabel($quantidade); ?>
+                        <?= $this->formElement($quantidade); ?>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <?= $this->formElement($send); ?>
             </div>
+            <?= $this->form()->closeTag(); ?>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="listaRemoverModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="listaRemoverModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="listaRemoverModalLabel">Remover da Lista</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <?= $this->form()->openTag($listaForm); ?>
+            <input type="hidden" name="id" id="idProdutoLista">
+            <div class="modal-body">
+                <div class="chart-area">
+
+                    <div class="form-group">
+                        <?= $this->formLabel($quantidade); ?>
+                        <?= $this->formElement($quantidade); ?>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <?= $this->formElement($sendLista); ?>
+            </div>
+            <?= $this->form()->closeTag(); ?>
 
         </div>
     </div>
@@ -111,7 +185,10 @@ $send->setAttributes(['id' => 'enviar']);
 
 
 <script>
-    var myModal = new bootstrap.Modal(document.getElementById('listaModal'), {
+    var listaRemoverModal = new bootstrap.Modal(document.getElementById('listaRemoverModal'), {
+        keyboard: false
+    })
+    var listaModal = new bootstrap.Modal(document.getElementById('listaModal'), {
         keyboard: false
     })
 
@@ -128,6 +205,7 @@ $send->setAttributes(['id' => 'enviar']);
             processData: false,
             contentType: false,
         }).done(function(e) {
+            console.log(e)
             let result = JSON.parse(e)
             if (result.success == 1) {
                 $('#produtoForm input').val("");
@@ -137,6 +215,9 @@ $send->setAttributes(['id' => 'enviar']);
                     'Produtos Cadastrados na Lista!',
                     'success'
                 )
+                loadFornecedores()
+                loadProdutosLista()
+                listaModal.hide()
             } else {
                 Swal.fire(
                     'Aaaa!',
@@ -150,9 +231,46 @@ $send->setAttributes(['id' => 'enviar']);
         });
 
     })
+    $('#listaForm').submit(e => {
+        e.preventDefault()
+        let form = document.getElementById('listaForm')
+        let formData = new FormData(form)
+        let url = '/api/removerListaProduto';
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+        }).done(function(e) {
+            let result = JSON.parse(e)
+            if (result.success == 1) {
+                $('#listaForm input').val("");
+                $('#enviarLista').val("Enviar");
+                Swal.fire(
+                    'Eeeeee!',
+                    'Produtos Removidos da Lista!',
+                    'success'
+                )
+                loadFornecedores()
+                loadProdutosLista()
+                listaRemoverModal.hide()
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Produtos Não Removidos da Lista!',
+                    'error'
+                )
+            }
+
+        }).fail(function(e) {
+            console.log(e);
+        });
+
+    })
 
 
-    const loadProdutos = () => {
+    const loadProdutosLista = () => {
         $('#listaTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
                 </div></center></td></tr>`)
@@ -166,33 +284,99 @@ $send->setAttributes(['id' => 'enviar']);
             console.log(result)
 
             $('#listaTable').html('')
+            let total = 0
+            let temDados = 0
+            $('#listaTable').append(`<tr>
+                            <td>
+                                QTD
+                            </td>
+                            <td>
+                                PRODUTO
+                            </td>
+                            <td>
+                                MEDIDA
+                            </td>
+                            <td>
+                                VALOR UNITÁRIO
+                            </td>
+                            <td>
+                                VALOR TOTAL
+                            </td>
+                            <td>
+                                FORNECEDOR
+                            </td>
+                            <td>
+                            
+                            </td>
+                        </tr>`)
             result.map(produto => {
-
-                $('#listaTable').prepend(`<tr>
+                temDados = 1
+                let valor = ''
+                let valorUnitario = 'R$' + produto.valor
+                let totalProduto = produto.quantidade * produto.valor
+                valor = 'R$' + totalProduto.toFixed(2)
+                total = total + totalProduto
+                $('#listaTable').append(`<tr>
+                            <td>
+                                ${produto.quantidade}
+                            </td>
                             <td>
                                 ${produto.nome}
-                            </td>
-                            <td>
-                            ${produto.fornecedor}
-                            </td>
-                            <td>
-                            R$ ${produto.valor}
                             </td>
                             <td>
                             ${produto.id_medida}
                             </td>
                             <td>
-                            ${produto.id_categoria}
+                                ${valorUnitario}
+                            </td>
+                            <td>
+                                ${valor}
+                            </td>
+                            <td>
+                            ${produto.fornecedor}
+                            </td>
+                            <td>
+                            <i onclick="abrirlistaRemoverModal(${produto.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>
                             </td>
                         </tr>`)
             })
+            if (temDados == 1) {
 
+                $('#listaTable').append(`<tr>
+                <td>
+                               
+                            </td>
+                            <td>
+                                
+                            </td>
+                            <td>
+                            
+                            </td>
+                            <td>
+                                Total:
+                            </td>
 
-
+                            <td>
+                            R$ ${total.toFixed(2)}
+                            </td>
+                            
+                            <td>
+                            
+                            </td>
+                            </tr>`)
+                $('#btnImprimir').removeClass('d-none')
+            }
 
         }).fail(function(e) {
             console.log(e);
         });
+    }
+
+
+    const abrirlistaRemoverModal = (id) => {
+        $('#idProdutoLista').val(id)
+        listaRemoverModal.show()
+        console.log(id)
     }
     const loadFornecedores = () => {
         $('#listaTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
@@ -211,11 +395,12 @@ $send->setAttributes(['id' => 'enviar']);
             let maiorValor = 0
             result.map(fornecedor => {
                 let valorFloat = parseFloat(fornecedor.valor).toFixed(2)
+
                 labels.push(fornecedor.nome)
                 dados.push(valorFloat);
 
-                if( maiorValor < valorFloat){
-                    maiorValor =  valorFloat
+                if (maiorValor < valorFloat) {
+                    maiorValor = valorFloat
                 }
 
             })
@@ -306,9 +491,8 @@ $send->setAttributes(['id' => 'enviar']);
         });
     }
 
-    $('#produtoSelect').addClass('text-white')
     $(document).ready(function() {
-        loadProdutos()
+        loadProdutosLista()
         loadFornecedores()
     });
 </script>
