@@ -64,20 +64,11 @@ class Produto
         }
         return $produtos;
     }
-    public function fetchAllWithFornecedor($limit = null, $offset = null, $coluna = 'id', $order = 'ASC')
+    public function fetchAllWithFornecedor()
     {
 
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $strLimit = '';
-        if ($limit) {
-            $strLimit = "LIMIT $limit";
-        }
-        $strOffset = '';
-        if ($offset) {
-            $strOffset = "OFFSET $offset";
-        }
-        $order = "ORDER BY $coluna $order";
 
         $selectString = "SELECT p.id, p.nome, m.medida, p.quantidade, c.nome as categoria FROM produto p JOIN produto_fornecedor pf ON pf.id_produto = p.id JOIN fornecedor f ON f.id = pf.id_fornecedor JOIN medida m ON m.id = p.id_medida JOIN categoria c ON c.id = p.id_categoria GROUP BY p.id";
 
@@ -94,6 +85,7 @@ class Produto
         }
         return $produtos;
     }
+    
     public function fetchAllList($limit = null, $offset = null, $coluna = 'id_produto', $order = 'ASC')
     {
 

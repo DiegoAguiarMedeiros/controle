@@ -10,6 +10,7 @@ namespace Application\Controller;
 
 use Api\Model\Fornecedor;
 use Application\Form\ListaForm;
+use Application\Form\EntradaSaidaEstoqueForm;
 use Application\Form\FornecedorForm;
 use Application\Form\CategoriaForm;
 use Application\Form\ProdutoForm;
@@ -25,6 +26,11 @@ class IndexController extends AbstractActionController
     }
     public function estoqueAction()
     {
+        $request = $this->getRequest();
+        $entradaSaidaEstoqueForm = new EntradaSaidaEstoqueForm('entradaSaidaEstoqueForm');
+        if (!$request->isPost()) {
+            return new ViewModel(['entradaSaidaEstoqueForm' => $entradaSaidaEstoqueForm]);
+        }
         return new ViewModel();
     }
     public function produtosAction()

@@ -90,14 +90,6 @@ class ProdutoForm extends Form
         ]);
 
         $this->add([
-            'quantidade' => 'quantidade',
-            'type' => Element\Number::class,
-            'options' => [
-                'label' => 'Quantidade:',
-            ],
-        ]);
-
-        $this->add([
             'name' => 'quantidade',
             'type' => Element\Text::class,
             'options' => [

@@ -12,6 +12,9 @@ use Api\Model\Lista;
 use Api\Model\Categoria;
 use Api\Model\Fornecedor;
 use Api\Model\Produto;
+use Api\Model\Estoque;
+use Api\Model\EntradaEstoque;
+use Api\Model\SaidaEstoque;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
@@ -28,22 +31,27 @@ class IndexController extends AbstractActionController
     {
         $request = $this->getRequest();
         $this->layout()->setTemplate('layout/blank');
-        $produto = new Produto();
-        $produtos = $produto->produtosEmEstoque();
+        $estoque = new Estoque();
+        $produtos = $estoque->fetchAllProdutosEmEstoque();
+        echo json_encode($produtos);
         return $request;
     }
     public function estoqueEntradaAction()
     {
         $request = $this->getRequest();
         $this->layout()->setTemplate('layout/blank');
-        echo 'estoqueEntrada';
+        $entradaEstoque = new EntradaEstoque();
+        $produtos = $entradaEstoque->fetchAllProdutosEntradaEstoque();
+        echo json_encode($produtos);
         return $request;
     }
     public function estoqueSaidaAction()
     {
         $request = $this->getRequest();
         $this->layout()->setTemplate('layout/blank');
-        echo 'estoqueSaida';
+        $saidaEstoque = new SaidaEstoque();
+        $produtos = $saidaEstoque->fetchAllProdutosSaidaEstoque();
+        echo json_encode($produtos);
         return $request;
     }
     public function insertProdutoFornecedorAction()

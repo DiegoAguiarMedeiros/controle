@@ -1,1 +1,293 @@
-a
+
+<?php
+
+$entradaSaidaEstoqueForm = $this->entradaSaidaEstoqueForm;
+$entradaSaidaEstoqueForm->prepare();
+$entradaSaidaEstoqueForm->setAttribute('method', 'post');
+
+
+
+$produtoLista = $entradaSaidaEstoqueForm->get('produtoLista');
+$produtoLista->setAttributes(['class' => 'form-control  text-dark']);
+$produtoLista->setAttributes(['placeholder' => 'Produto...']);
+$produtoLista->setAttributes(['required' => 'true']);
+
+$valor = $entradaSaidaEstoqueForm->get('valor');
+$valor->setAttributes(['class' => 'form-control  text-dark']);
+$valor->setAttributes(['required' => 'true']);
+
+
+$quantidade = $entradaSaidaEstoqueForm->get('quantidade');
+$quantidade->setAttributes(['class' => 'form-control  text-dark']);
+$quantidade->setAttributes(['placeholder' => 'Quantidade...']);
+$quantidade->setAttributes(['required' => 'true']);
+$quantidade->setAttributes(['id' => 'quantidade']);
+
+
+$send = $entradaSaidaEstoqueForm->get('send');
+$send->setAttributes(['class' => 'btn btn-primary float-right']);
+$send->setAttributes(['id' => 'enviar']);
+
+?>
+
+
+
+
+<div class="col-md-12">
+    <div class="card ">
+        <div class="card-header row">
+            <div class="card-header col ">
+                <h3 class="card-title"> Estoque </h3>
+            </div>
+            <div class="card-header col-5 row ">
+                <div class="col-6 mx-0 px-0 ">
+                    <button type="button" class="btn btn-primary" onclick="abrirModal('entrada')">
+                         ENTRADA
+                    </button>
+                </div>
+                <div class="col-6 mx-0 px-0 ">
+                    <button type="button" class="btn btn-primary" onclick="abrirModal('saida')">
+                         SAIDA
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table tablesorter " id="">
+                    <thead class=" text-primary">
+                        <tr>
+                            <th>
+                                Nome
+                            </th>
+                            <th>
+                                Medida
+                            </th>
+                            </th>
+                            <th>
+                                Categoria
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="produtoTable">
+                        <tr>
+                            <td>
+                                N/A
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<!-- Modal -->
+<div class="modal fade" id="estoqueProdutoModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="estoqueProdutoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="transform: none;">
+        <div class="modal-content">
+            <?= $this->form()->openTag($entradaSaidaEstoqueForm); ?>
+            <div class="modal-header">
+                <h5 class="modal-title" id="estoqueProdutoModalLabel">ENTRADA PRODUTO</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick="limparEditar()"></button>
+                <input type="hidden" id="editInput" value="0">
+                <input type="hidden" id="idProduto" name="id">
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <?= $this->formLabel($produtoLista); ?>
+                    <?= $this->formElement($produtoLista); ?>
+                </div>
+                <div class="form-group">
+                    <?= $this->formLabel($valor); ?>
+                    <?= $this->formElement($valor); ?>
+                </div>
+                <div class="form-group">
+                    <?= $this->formLabel($quantidade); ?>
+                    <?= $this->formElement($quantidade); ?>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button onClick="limparEditar()" type="button" id="closeestoqueProdutoModal" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+                <?= $this->formElement($send); ?>
+            </div>
+            <?= $this->form()->closeTag(); ?>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+
+var estoqueProdutoModal = new bootstrap.Modal(document.getElementById('estoqueProdutoModal'), {
+        keyboard: false
+    })
+    const loadProduto = () => {
+        $('#produtoTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+                </div></center></td></tr>`)
+
+        let url = '/api/estoque';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+        }).fail((dados) => {
+            $('#produtoTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+        }).done((dados) => {
+            $('#produtoTable').html('')
+
+            dados.map(produto => {
+                console.log(produto)
+                $('#produtoTable').prepend(`<tr>
+                            <td id="nome${produto.id}">${produto.nome}</td>
+                            <td>
+                            ${produto.id_medida}
+                            </td>
+                            <td>
+                            ${produto.id_categoria}
+                            </td>
+                            <td>
+
+                                <i onClick="editarProduto(${produto.id},'${produto.nome}','${produto.id_medida}','${produto.id_categoria}')" class="tim-icons text-warning icon-pencil tim-icons-lg click" data-bs-toggle="modal" data-bs-target="#estoqueProdutoModal"></i>
+                                <i onClick="removerProduto(${produto.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>
+                            </td>
+                        </tr>`)
+            })
+
+        })
+
+    }
+
+    $('#produtoForm').submit(e => {
+        e.preventDefault()
+        
+
+        let editInput = $('#editInput').val()
+        let url = ''
+        if(editInput == 0){
+            url = '/api/insertProduto'
+        }else{
+            url = '/api/updateProduto'
+        }
+        enviarProduto(url)
+    })
+    const enviarProduto = (url) => {
+        let form = document.getElementById('produtoForm')
+        let formData = new FormData(form)
+       
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+        }).done(function(e) {
+            let result = JSON.parse(e)
+            if (result.success == 1) {
+                $('#produtoForm input').val("");
+                $('#enviar').val("Enviar");
+                Swal.fire(
+                    'Eeeeee!',
+                    'Produto Cadastrado!',
+                    'success'
+                )
+                $('#closeestoqueProdutoModal').click();
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Produto Não Cadastrado!',
+                    'error'
+                )
+            }
+
+            loadProduto()
+        }).fail(function(e) {
+            console.log(e);
+        });
+    }
+
+    const abrirModal = (tipo) => {
+        if(tipo == 'entrada'){
+            $('#estoqueProdutoModalLabel').html('ENTRADA PRODUTO')
+        }else{
+            $('#estoqueProdutoModalLabel').html('SAIDA PRODUTO')
+        }
+        estoqueProdutoModal.show()
+    }
+    const limparEditar = () => {
+        $("select[name='produtoLista']").val('');
+        $("input[name='quantidade']").val('')
+        $("select[name='vavlor']").val('');
+    }
+    const editarProduto = (produto,nome,medida,categoria) => {
+        
+        $('#editInput').val(1)
+        $('#idProduto').val(produto)
+        
+        value = medida.split(' ')
+        let selectMedia = $("input[name='medida']")
+        console.log(selectMedia)
+
+        $("select[name='medida']").val( $('option:contains("'+value[1]+'")').val() );
+        $("input[name='nome']").val(nome)
+        $("input[name='quantidade']").val(value[0])
+        $("select[name='categoria']").val( $('option:contains("'+categoria+'")').val() );
+
+        $('#estoqueProdutoModalLabel').html('EDITAR PRODUTO')
+
+    }
+    const removerProduto = (produto) => {
+
+        let url = '/api/removerProduto/' + produto;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+        }).fail((dados) => {
+            console.log(dados)
+            $('#produtosTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+        }).done((dados) => {
+            if (dados.success == 1) {
+                Swal.fire(
+                    'Eeeeee!',
+                    'Produto Removido!',
+                    'success'
+                )
+                $('#closeestoqueProdutoModal').click();
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'Produto Não Removido!',
+                    'error'
+                )
+            }
+
+            loadProduto()
+        })
+    }
+
+    
+
+    
+    $(document).ready(() => {
+
+        loadProduto()
+        $('#quantidade').maskMoney({thousands:'', decimal:'.', precision:3});
+    })
+</script>
