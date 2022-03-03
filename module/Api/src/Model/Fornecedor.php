@@ -180,7 +180,7 @@ class Fornecedor
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
         $insert = $sql->insert('fornecedor');
-        $insert->values(['nome'=>$this->nome]);
+        $insert->values(['nome'=>$this->nome,'id_usuario'=>1]);
         $insertString = $sql->buildSqlString($insert);
         $result = $adapter->query($insertString,$adapter::QUERY_MODE_EXECUTE);
         return $result->getAffectedRows();
