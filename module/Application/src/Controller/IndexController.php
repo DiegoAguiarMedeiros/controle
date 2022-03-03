@@ -26,6 +26,19 @@ class IndexController extends AbstractActionController
     }
     public function estoqueAction()
     {
+        return new ViewModel();
+    }
+    public function entradaEstoqueAction()
+    {
+        $request = $this->getRequest();
+        $entradaSaidaEstoqueForm = new EntradaSaidaEstoqueForm('entradaSaidaEstoqueForm');
+        if (!$request->isPost()) {
+            return new ViewModel(['entradaSaidaEstoqueForm' => $entradaSaidaEstoqueForm]);
+        }
+        return new ViewModel();
+    }
+    public function saidaEstoqueAction()
+    {
         $request = $this->getRequest();
         $entradaSaidaEstoqueForm = new EntradaSaidaEstoqueForm('entradaSaidaEstoqueForm');
         if (!$request->isPost()) {

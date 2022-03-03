@@ -12,7 +12,7 @@ class EntradaEstoque
     private $id_categoria;
     private $id_produto;
     private $data_entrada;
-    private $valor;
+    private $valor_unitario;
 
     public function __construct($id = "", $nome = "", $medida = "", $quantidade = "",  $categoria = "", $valor = "",$id_produto = "")
     {
@@ -67,7 +67,7 @@ class EntradaEstoque
         $insert->values([
             'qtde' => $this->quantidade,
             'valor_unitario' => $this->valor_unitario,
-            'data_entrada' => $this->data_entrada,
+            'data_entrada' => date('Y-m-d'),
             'id_produto' => $this->id_produto,
         ]);
         $insertString = $sql->buildSqlString($insert);

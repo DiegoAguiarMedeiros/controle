@@ -45,6 +45,58 @@ class IndexController extends AbstractActionController
         echo json_encode($produtos);
         return $request;
     }
+    public function addEstoqueEntradaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $dados = $request->getPost();
+        $retorno = Array();
+        
+        for ($i=0; $i < count($dados); $i++) { 
+            $dadosProduto = json_decode($dados[$i]);
+            $entradaEstoque = new EntradaEstoque();
+            $entradaEstoque->__set('id_produto',$dadosProduto->produto);
+            $entradaEstoque->__set('valor_unitario',$dadosProduto->valor);
+            $entradaEstoque->__set('quantidade',$dadosProduto->quantidade);
+
+            $result = $entradaEstoque->insert();
+            if($result == 1){
+                $retorno[$i] = ['success' => 1 , 'ID' => $dadosProduto->produto];
+            }else{
+                
+                $retorno[$i] = ['success' => 0 , 'error' => 0];
+            }
+        }
+
+        echo json_encode($retorno);
+        return $request;
+    }
+    public function addEstoqueSaidaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $dados = $request->getPost();
+        $retorno = Array();
+        
+        for ($i=0; $i < count($dados); $i++) { 
+            $dadosProduto = json_decode($dados[$i]);
+            $entradaEstoque = new SaidaEstoque();
+            $entradaEstoque->__set('id_produto',$dadosProduto->produto);
+            $entradaEstoque->__set('valor_unitario',$dadosProduto->valor);
+            $entradaEstoque->__set('quantidade',$dadosProduto->quantidade);
+
+            $result = $entradaEstoque->insert();
+            if($result == 1){
+                $retorno[$i] = ['success' => 1 , 'ID' => $dadosProduto->produto];
+            }else{
+                
+                $retorno[$i] = ['success' => 0 , 'error' => 0];
+            }
+        }
+
+        echo json_encode($retorno);
+        return $request;
+    }
     public function estoqueSaidaAction()
     {
         $request = $this->getRequest();

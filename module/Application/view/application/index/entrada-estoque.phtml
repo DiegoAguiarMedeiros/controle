@@ -1,0 +1,220 @@
+<?php
+
+$entradaSaidaEstoqueForm = $this->entradaSaidaEstoqueForm;
+$entradaSaidaEstoqueForm->prepare();
+$entradaSaidaEstoqueForm->setAttribute('method', 'post');
+
+
+
+$produtoLista = $entradaSaidaEstoqueForm->get('produtoLista');
+$produtoLista->setAttributes(['class' => 'form-control  text-dark']);
+$produtoLista->setAttributes(['placeholder' => 'Produto...']);
+$produtoLista->setAttributes(['required' => 'true']);
+
+$valor = $entradaSaidaEstoqueForm->get('valor');
+$valor->setAttributes(['class' => 'form-control  text-dark']);
+$valor->setAttributes(['required' => 'true']);
+
+
+$quantidade = $entradaSaidaEstoqueForm->get('quantidade');
+$quantidade->setAttributes(['class' => 'form-control  text-dark']);
+$quantidade->setAttributes(['placeholder' => 'Quantidade...']);
+$quantidade->setAttributes(['required' => 'true']);
+$quantidade->setAttributes(['id' => 'quantidade']);
+
+
+$send = $entradaSaidaEstoqueForm->get('send');
+$send->setAttributes(['class' => 'btn btn-primary float-right']);
+$send->setAttributes(['id' => 'enviar']);
+
+?>
+
+
+
+
+<div class="col-md-12">
+    <div class="card ">
+        <div class="card-header row">
+            <div class="card-header col ">
+                <h3 class="card-title"> Entradas </h3>
+            </div>
+            <div class="card-header col-5 row ">
+                <div class="col-6 mx-0 px-0 ">
+                    <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#estoqueProdutoModal">
+                        ADICIONAR
+                    </a>
+                </div>
+                <div class="col-6 mx-0 px-0 ">
+                    <a class="btn btn-success" href="#" onclick="enviarProduto()">
+                        SALVAR
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table tablesorter " id="">
+                    <thead class=" text-primary">
+                        <tr>
+                            <th>
+                                Nome
+                            </th>
+                            <th>
+                                Quantidade
+                            </th>
+                            <th>
+                                Preço
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="produtoTable">
+                        <tr>
+                            <td>
+                                N/A
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                            <td>
+                                N/A
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<!-- Modal -->
+<div class="modal fade" id="estoqueProdutoModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="estoqueProdutoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="transform: none;">
+        <div class="modal-content">
+            <?= $this->form()->openTag($entradaSaidaEstoqueForm); ?>
+            <div class="modal-header">
+                <h5 class="modal-title" id="estoqueProdutoModalLabel">ENTRADA PRODUTO</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <input type="hidden" id="idProduto" name="id">
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <?= $this->formLabel($produtoLista); ?>
+                    <?= $this->formElement($produtoLista); ?>
+                </div>
+                <div class="form-group">
+                    <?= $this->formLabel($valor); ?>
+                    <?= $this->formElement($valor); ?>
+                </div>
+                <div class="form-group">
+                    <?= $this->formLabel($quantidade); ?>
+                    <?= $this->formElement($quantidade); ?>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeestoqueProdutoModal" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
+                <?= $this->formElement($send); ?>
+            </div>
+            <?= $this->form()->closeTag(); ?>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    var entradaEstoqueArray = new Array();
+    var estoqueProdutoModal = new bootstrap.Modal(document.getElementById('estoqueProdutoModal'), {
+        keyboard: false
+    })
+
+
+    $('#entradaSaidaEstoqueForm').submit(e => {
+        e.preventDefault()
+        let id = $("select[name='produtoLista'] :selected").val()
+        let produto = $("select[name='produtoLista'] :selected").text()
+        console.log(produto)
+        let valor = parseFloat($("input[name='valor']").val())
+        let quantidade = $("input[name='quantidade']").val()
+
+        entradaEstoqueArray.push({
+            "produto": id,
+            "produtoNome": produto,
+            "valor": valor,
+            "quantidade": quantidade,
+        })
+        console.log(entradaEstoqueArray)
+        $('#produtoTable').html("")
+        let total = 0
+        entradaEstoqueArray.map(linha => {
+            let valorQtd = linha.valor * linha.quantidade
+            total = parseFloat(total + valorQtd)
+            $('#produtoTable').prepend(`<tr>
+                            <td id="nomea">
+                            ${linha.produtoNome}
+                            </td>
+                            <td>
+                            ${linha.quantidade}
+                            </td>
+                            <td>
+                            R$${linha.valor.toFixed(2)} (${valorQtd.toFixed(2)})
+                            </td>
+                            <td id='status${linha.produto}'>
+                            <i class="tim-icons icon-alert-circle-exc text-danger"></i>
+                            </td>
+                        </tr>`)
+        })
+
+        $('#produtoTable').append(`<tr>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            R$${total.toFixed(2)}
+                            </td>
+                            <td>
+                            </td>
+                        </tr>`)
+
+
+
+    })
+    const enviarProduto = () => {
+
+        let formData = new FormData();
+
+        for (let i = 0; i < entradaEstoqueArray.length; i++) {
+            formData.append(i, JSON.stringify(entradaEstoqueArray[i]))
+
+        }
+
+        entradaEstoqueArray.map(linha => {
+
+        })
+
+        $.ajax({
+            url: '/api/addEstoqueEntrada',
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+        }).done(function(e) {
+            console.log(e)
+            let result = JSON.parse(e)
+            for (let i = 0; i < result.length; i++) {
+                if (result[i].success == 1) {
+                    $('#status'+result[i].ID).html('<i class="tim-icons icon-check-2 text-success"></i>')
+                    console.log(result[i])
+                }
+            }
+        }).fail(function(e) {
+            console.log(e);
+        });
+    }
+</script>

@@ -68,7 +68,7 @@ class SaidaEstoque
         $insert->values([
             'qtde' => $this->quantidade,
             'valor_unitario' => $this->valor_unitario,
-            'data_saida' => $this->data_saida,
+            'data_saida' => date('Y-m-d'),
             'id_produto' => $this->id_produto,
         ]);
         $insertString = $sql->buildSqlString($insert);

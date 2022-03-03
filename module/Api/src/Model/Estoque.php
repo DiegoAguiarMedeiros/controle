@@ -52,26 +52,7 @@ class Estoque
         }
         return $produtos;
     }
-    public function fetchAllProdutosEntradaEstoque()
-    {
 
-        $con = new Connection();
-        $adapter = $con->getAdapter();
-
-        $selectString = "SELECT ep.qtde, ep.valor_unitario, ep.data_entrada, p.nome FROM entrada_produto ep JOIN produto p ON p.id = ep.id_produto";
-
-        $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
-        $produtos = array();
-
-        foreach ($results->toArray() as $value) {
-            $produto = array();
-            $produto['qtde'] = $value['qtde'];
-            $produto['nome'] = $value['nome'];
-            $produto['valor_unitario'] = $value['valor_unitario'];
-            $produtos[] = $produto;
-        }
-        return $produtos;
-    }
     public function fetchAllProdutosSaidaEstoque()
     {
 
