@@ -7,12 +7,12 @@
             <div class="card-header col-5 row ">
                 <div class="col-6 mx-0 px-0 ">
                     <a class="btn btn-primary" href="/application/entradaEstoque">
-                        ENTRADA
+                        ADICIONAR
                     </a>
                 </div>
                 <div class="col-6 mx-0 px-0 ">
                     <a class="btn btn-primary" href="/application/saidaEstoque">
-                        SAIDA
+                        REMOVER
                     </a>
                 </div>
             </div>
@@ -80,11 +80,7 @@
                             <td>
                             R$${produto.valor_unitario}
                             </td>
-                            <td>
-
-                                <i onClick="editarProduto(${produto.id},'${produto.nome}','${produto.id_medida}','${produto.id_categoria}')" class="tim-icons text-warning icon-pencil tim-icons-lg click" data-bs-toggle="modal" data-bs-target="#estoqueProdutoModal"></i>
-                                <i onClick="removerProduto(${produto.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>
-                            </td>
+                            
                         </tr>`)
             })
 

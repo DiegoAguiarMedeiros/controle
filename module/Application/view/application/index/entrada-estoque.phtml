@@ -36,17 +36,22 @@ $send->setAttributes(['id' => 'enviar']);
     <div class="card ">
         <div class="card-header row">
             <div class="card-header col ">
-                <h3 class="card-title"> Entradas </h3>
+                <h3 class="card-title"> ADICIONAR </h3>
             </div>
             <div class="card-header col-5 row ">
-                <div class="col-6 mx-0 px-0 ">
+                <div class="col-4 mx-0 px-0 ">
                     <a class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#estoqueProdutoModal">
                         ADICIONAR
                     </a>
                 </div>
-                <div class="col-6 mx-0 px-0 ">
+                <div class="col-4 mx-0 px-0 ">
                     <a class="btn btn-success" href="#" onclick="enviarProduto()">
                         SALVAR
+                    </a>
+                </div>
+                <div class=" col-4 mx-0 px-0">
+                    <a class="btn btn-secondary" href="/application/estoque">
+                        VOLTAR
                     </a>
                 </div>
             </div>
@@ -209,7 +214,7 @@ $send->setAttributes(['id' => 'enviar']);
             let result = JSON.parse(e)
             for (let i = 0; i < result.length; i++) {
                 if (result[i].success == 1) {
-                    $('#status'+result[i].ID).html('<i class="tim-icons icon-check-2 text-success"></i>')
+                    $('#status' + result[i].ID).html('<i class="tim-icons icon-check-2 text-success"></i>')
                     console.log(result[i])
                 }
             }

@@ -8,7 +8,6 @@
 
 namespace Application\Controller;
 
-use Api\Model\Fornecedor;
 use Application\Form\ListaForm;
 use Application\Form\EntradaSaidaEstoqueForm;
 use Application\Form\FornecedorForm;
