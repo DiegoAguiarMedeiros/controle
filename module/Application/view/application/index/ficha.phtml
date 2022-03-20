@@ -1,0 +1,253 @@
+<?php
+
+
+$fichaTecnicaForm = $this->fichaTecnicaForm;
+$fichaTecnicaForm->prepare();
+$fichaTecnicaForm->setAttribute('method', 'post');
+
+$nomeCategoria = $fichaTecnicaForm->get('nome');
+$nomeCategoria->setAttributes(['class' => 'form-control  text-dark']);
+$nomeCategoria->setAttributes(['placeholder' => 'Categoria...']);
+$nomeCategoria->setAttributes(['required' => 'true']);
+
+$sendCategoria = $fichaTecnicaForm->get('send');
+$sendCategoria->setAttributes(['class' => 'btn btn-primary float-right']);
+$sendCategoria->setAttributes(['id' => 'enviarCategoria']);
+
+$fichaTecnicaForm = $this->fichaTecnicaForm;
+$fichaTecnicaForm->prepare();
+$fichaTecnicaForm->setAttribute('method', 'post');
+
+?>
+
+
+
+
+<div class="col-md-12">
+    <div class="card ">
+        <div class="card-header row">
+            <div class="card-header col ">
+                <h3 class="card-title"> <?= $this->nomeFichaTenica ?> </h3>
+            </div>
+            <div class="card-header col-5 row ">
+                <div class="col-6 mx-0 px-0 ">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fichaTecnicaModal">
+                        ADICIONAR
+                    </button>
+                </div>
+                <div class="col-6 mx-0 px-0 ">
+                    <a href="/application/ficha-tecnica" class="btn btn-warning">
+                        VOLTAR
+                    </a>
+                </div>
+            </div>
+            <div class=" card-body">
+                <div class="table-responsive">
+                    <table class="table tablesorter " id="">
+                        <thead class=" text-primary">
+                            <tr>
+                                <th>
+                                    Nome
+                                </th>
+                                <th>
+                                    Produtos
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriasTable">
+                            <tr>
+                                <td>
+                                    N/A
+                                </td>
+                                <td>
+                                    N/A
+                                </td>
+                                <td>
+                                    N/A
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="categoriaModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="categoriaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <?= $this->form()->openTag($fichaTecnicaForm); ?>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoriaModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <input type="hidden" id="editInput" value="0">
+                    <input type="hidden" id="idCategoria" name="id">
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <?= $this->formLabel($nomeCategoria); ?>
+                        <?= $this->formElement($nomeCategoria); ?>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="closeCategoriaModal" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <?= $this->formElement($sendCategoria); ?>
+                </div>
+                <?= $this->form()->closeTag(); ?>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const loadCategoria = () => {
+            $('#categoriasTable').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+                </div></center></td></tr>`)
+
+            let url = '/api/categorias';
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: "json"
+            }).fail((dados) => {
+                $('#categoriasTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+            }).done((dados) => {
+                $('#categoriasTable').html('')
+
+                console.log(dados)
+                dados.map(categoria => {
+                    let deleteButton = ''
+                    if (categoria.produtos == 0) {
+                        deleteButton = `<i onClick="removerCategoria(${categoria.id})" class="tim-icons text-danger icon-trash-simple tim-icons-lg click"></i>`
+                    }
+
+                    $('#categoriasTable').prepend(`<tr>
+                            <td>
+                                ${categoria.nome}
+                            </td>
+                            <td>
+                                ${categoria.produtos}
+                            </td>
+                            <td>
+                            <i onClick="editarCategoria(${categoria.id},'${categoria.nome}')" class="tim-icons text-warning icon-pencil tim-icons-lg click" data-bs-toggle="modal" data-bs-target="#categoriaModal"></i>
+                            ${deleteButton}
+                            </td>
+                        </tr>`)
+                })
+
+            })
+
+        }
+
+
+        const removerCategoria = (categoria) => {
+            let url = '/api/removerCategoria/' + categoria;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: "json"
+            }).fail((dados) => {
+                console.log(dados)
+                $('#categoriasTable').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+            }).done((dados) => {
+                if (dados.success == 1) {
+                    Swal.fire(
+                        'Eeeeee!',
+                        'Categoria Removida!',
+                        'success'
+                    )
+                    $('#closeProdutoModal').click();
+                } else {
+                    Swal.fire(
+                        'Aaaa!',
+                        'Categoria Não Removida!',
+                        'error'
+                    )
+                }
+
+                loadCategoria()
+            })
+        }
+
+        const limparEditar = () => {
+            $('#categoriaModalLabel').html('NOVO CATEGORIA')
+            $('#editInput').val(0)
+            $("input[name='nome']").val('')
+            $("select[name='medida']").val('');
+            $("input[name='quantidade']").val('')
+            $("select[name='categoria']").val('');
+        }
+
+        const editarCategoria = (categoria, nome) => {
+
+            $('#editInput').val(1)
+            $('#idCategoria').val(categoria)
+            $("input[name='nome']").val(nome)
+
+            $('#categoriaModalLabel').html('EDITAR CATEGORIA')
+
+        }
+
+        $('#fichaTecnicaForm').submit(e => {
+            e.preventDefault()
+            let editInput = $('#editInput').val()
+            let url = '';
+            if (editInput == 0) {
+                url = '/api/insertCategoria'
+            } else {
+                url = '/api/updateCategoria'
+            }
+            enviarCategoria(url)
+
+        })
+
+
+        const enviarCategoria = (url) => {
+            let form = document.getElementById('fichaTecnicaForm')
+            let formData = new FormData(form)
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+            }).done(function(e) {
+
+                let result = JSON.parse(e)
+                if (result.success == 1) {
+                    $('#fichaTecnicaForm input').val("");
+                    $('#enviarCategoria').val("Enviar");
+                    Swal.fire(
+                        'Eeeeee!',
+                        'Categoria Cadastrada!',
+                        'success'
+                    )
+                    $('#closeCategoriaModal').click();
+                } else {
+                    Swal.fire(
+                        'Aaaa!',
+                        'Categoria Não Cadastrada!',
+                        'error'
+                    )
+                }
+
+                loadCategoria()
+            }).fail(function(e) {
+                console.log(e);
+            });
+        }
+
+        $(document).ready(() => {
+
+            loadCategoria()
+            $('#quantidade').maskMoney({
+                thousands: '',
+                decimal: '.',
+                precision: 3
+            });
+        })
+    </script>

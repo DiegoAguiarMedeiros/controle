@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19-Nov-2021 às 16:51
--- Versão do servidor: 10.4.21-MariaDB
--- versão do PHP: 7.4.25
+-- Tempo de geração: 20-Mar-2022 às 20:53
+-- Versão do servidor: 10.4.14-MariaDB
+-- versão do PHP: 7.4.27
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -25,16 +25,27 @@ DELIMITER $$
 --
 -- Procedimentos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_AtualizaEstoque` (`id_prod` INT, `qtde_comprada` INT, `valor_unit` DECIMAL(9,2))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_AtualizaEstoque` (IN `id_prod` INT, IN `qtde_comprada` INT, IN `valor_unit` DECIMAL(9,2))  BEGIN
+    
     declare contador int(11);
+    declare media float(11,2);
 
     SELECT count(*) into contador FROM estoque WHERE id_produto = id_prod;
-
+    SELECT (SUM(qtde * valor_unitario) / SUM(qtde)) into media FROM entrada_produto WHERE id_produto = id_prod AND data_entrada > DATE_ADD(CURRENT_DATE(),INTERVAL '-30' DAY);
+    INSERT INTO conferencia (dados) values (id_prod);
+    INSERT INTO conferencia (dados) values (qtde_comprada);
+    INSERT INTO conferencia (dados) values (valor_unit);
+    INSERT INTO conferencia (dados) values ('--');
     IF contador > 0 THEN
-        UPDATE estoque SET qtde=qtde + qtde_comprada, valor_unitario= valor_unit
-        WHERE id_produto = id_prod;
+        IF media > 0 THEN
+            UPDATE estoque SET qtde=qtde + qtde_comprada, valor_unitario= media
+            WHERE id_produto = id_prod;
+        ELSE
+            UPDATE estoque SET qtde=qtde + qtde_comprada, valor_unitario= valor_unit
+            WHERE id_produto = id_prod;
+        END IF;
     ELSE
-        INSERT INTO estoque (id_produto, qtde, valor_unitario) values (id_prod, qtde_comprada, valor_unit);
+        INSERT INTO estoque (id_produto, qtde, valor_unitario,id_usuario) values (id_prod, qtde_comprada, valor_unit,1);
     END IF;
 END$$
 
@@ -49,22 +60,196 @@ DELIMITER ;
 CREATE TABLE `categoria` (
   `id` int(11) NOT NULL,
   `nome` varchar(100) COLLATE utf8_bin NOT NULL,
-  `id_categoria` int(11) DEFAULT NULL
+  `id_categoria` int(11) DEFAULT NULL,
+  `id_usuario` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Extraindo dados da tabela `categoria`
 --
 
-INSERT INTO `categoria` (`id`, `nome`, `id_categoria`) VALUES
-(1, 'Categoria 1', NULL),
-(2, 'Categoria 2', NULL),
-(3, 'Categoria 3', NULL),
-(4, 'Categoria 4', NULL),
-(5, 'Categoria 5', NULL),
-(6, 'Categoria 6', NULL),
-(7, 'Categoria 7', NULL),
-(8, 'Categoria 8', NULL);
+INSERT INTO `categoria` (`id`, `nome`, `id_categoria`, `id_usuario`) VALUES
+(1, 'Insumo', NULL, 1),
+(34, 'Produto Final', NULL, 1),
+(35, 'Massa', NULL, 1),
+(36, 'Embalagem', NULL, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `conferencia`
+--
+
+CREATE TABLE `conferencia` (
+  `id` int(11) NOT NULL,
+  `dados` varchar(255) COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Extraindo dados da tabela `conferencia`
+--
+
+INSERT INTO `conferencia` (`id`, `dados`) VALUES
+(0, '1'),
+(0, '2'),
+(0, '2.50'),
+(0, '--'),
+(0, '1'),
+(0, '2'),
+(0, '2.50'),
+(0, '--'),
+(0, '4'),
+(0, '3'),
+(0, '4.50'),
+(0, '--'),
+(0, '7'),
+(0, '4'),
+(0, '4.50'),
+(0, '--'),
+(0, '1'),
+(0, '2'),
+(0, '2.50'),
+(0, '--'),
+(0, '4'),
+(0, '3'),
+(0, '4.50'),
+(0, '--'),
+(0, '7'),
+(0, '4'),
+(0, '4.50'),
+(0, '--'),
+(0, '29'),
+(0, '3'),
+(0, '2.50'),
+(0, '--'),
+(0, '29'),
+(0, '3'),
+(0, '2.50'),
+(0, '--'),
+(0, '29'),
+(0, '2'),
+(0, '50.00'),
+(0, '--'),
+(0, '1'),
+(0, '-2'),
+(0, '2.50'),
+(0, '--'),
+(0, '1'),
+(0, '-2'),
+(0, '2.50'),
+(0, '--'),
+(0, '1'),
+(0, '-2'),
+(0, '2.50'),
+(0, '--'),
+(0, '1'),
+(0, '-2'),
+(0, '2.50'),
+(0, '--'),
+(0, '4'),
+(0, '-3'),
+(0, '4.50'),
+(0, '--'),
+(0, '7'),
+(0, '-4'),
+(0, '4.50'),
+(0, '--'),
+(0, '1'),
+(0, '-2'),
+(0, '2.50'),
+(0, '--'),
+(0, '4'),
+(0, '-3'),
+(0, '4.50'),
+(0, '--'),
+(0, '7'),
+(0, '-4'),
+(0, '4.50'),
+(0, '--'),
+(0, '29'),
+(0, '-3'),
+(0, '2.50'),
+(0, '--'),
+(0, '29'),
+(0, '-3'),
+(0, '2.50'),
+(0, '--'),
+(0, '29'),
+(0, '-2'),
+(0, '50.00'),
+(0, '--'),
+(0, '1'),
+(0, '3'),
+(0, '2.50'),
+(0, '--'),
+(0, '4'),
+(0, '2'),
+(0, '5.00'),
+(0, '--'),
+(0, '7'),
+(0, '4'),
+(0, '3.00'),
+(0, '--'),
+(0, '29'),
+(0, '2'),
+(0, '23.00'),
+(0, '--'),
+(0, '1'),
+(0, '1'),
+(0, '50.00'),
+(0, '--'),
+(0, '29'),
+(0, '3'),
+(0, '2.00'),
+(0, '--'),
+(0, '1'),
+(0, '-3'),
+(0, '2.50'),
+(0, '--'),
+(0, '4'),
+(0, '-2'),
+(0, '5.00'),
+(0, '--'),
+(0, '7'),
+(0, '-4'),
+(0, '3.00'),
+(0, '--'),
+(0, '29'),
+(0, '-2'),
+(0, '23.00'),
+(0, '--'),
+(0, '1'),
+(0, '-1'),
+(0, '50.00'),
+(0, '--'),
+(0, '29'),
+(0, '-3'),
+(0, '2.00'),
+(0, '--'),
+(0, '1'),
+(0, '2'),
+(0, '30.00'),
+(0, '--'),
+(0, '1'),
+(0, '4'),
+(0, '50.00'),
+(0, '--'),
+(0, '29'),
+(0, '10'),
+(0, '2.50'),
+(0, '--'),
+(0, '7'),
+(0, '20'),
+(0, '3.50'),
+(0, '--'),
+(0, '7'),
+(0, '-10'),
+(0, '20.00'),
+(0, '--'),
+(0, '1'),
+(0, '-3'),
+(0, '2.50'),
+(0, '--');
 
 -- --------------------------------------------------------
 
@@ -79,6 +264,16 @@ CREATE TABLE `entrada_produto` (
   `valor_unitario` decimal(9,2) DEFAULT 0.00,
   `data_entrada` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Extraindo dados da tabela `entrada_produto`
+--
+
+INSERT INTO `entrada_produto` (`id`, `id_produto`, `qtde`, `valor_unitario`, `data_entrada`) VALUES
+(31, 1, 2, '30.00', '2022-03-02'),
+(32, 1, 4, '50.00', '2022-03-02'),
+(33, 29, 10, '2.50', '2022-03-02'),
+(34, 7, 20, '3.50', '2022-03-02');
 
 --
 -- Acionadores `entrada_produto`
@@ -112,7 +307,50 @@ CREATE TABLE `estoque` (
   `id` int(11) NOT NULL,
   `id_produto` int(11) DEFAULT NULL,
   `qtde` int(11) DEFAULT NULL,
-  `valor_unitario` decimal(9,2) DEFAULT 0.00
+  `valor_unitario` decimal(9,2) DEFAULT 0.00,
+  `id_usuario` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Extraindo dados da tabela `estoque`
+--
+
+INSERT INTO `estoque` (`id`, `id_produto`, `qtde`, `valor_unitario`, `id_usuario`) VALUES
+(10, 1, 3, '43.33', 1),
+(11, 29, 10, '2.50', 1),
+(12, 7, 10, '3.50', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `ficha_tecnica`
+--
+
+CREATE TABLE `ficha_tecnica` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(200) COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Extraindo dados da tabela `ficha_tecnica`
+--
+
+INSERT INTO `ficha_tecnica` (`id`, `nome`) VALUES
+(1, 'teste'),
+(2, 'teste2'),
+(3, 'teste3'),
+(4, 'teste4');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `ficha_tecnica_conteudo`
+--
+
+CREATE TABLE `ficha_tecnica_conteudo` (
+  `id_ficha_tecnica` int(11) NOT NULL,
+  `id_produto` int(11) NOT NULL,
+  `quantidade` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -123,20 +361,17 @@ CREATE TABLE `estoque` (
 
 CREATE TABLE `fornecedor` (
   `id` int(11) NOT NULL,
-  `nome` varchar(100) COLLATE utf8_bin NOT NULL
+  `nome` varchar(100) COLLATE utf8_bin NOT NULL,
+  `id_usuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Extraindo dados da tabela `fornecedor`
 --
 
-INSERT INTO `fornecedor` (`id`, `nome`) VALUES
-(1, 'Fornecedor 1'),
-(2, 'Fornecedor 2'),
-(3, 'Fornecedor 3'),
-(4, 'Fornecedor 4'),
-(5, 'Fornecedor 5'),
-(6, 'Fornecedor 6');
+INSERT INTO `fornecedor` (`id`, `nome`, `id_usuario`) VALUES
+(37, 'Sempre Tem', 1),
+(38, 'Ok', 1);
 
 -- --------------------------------------------------------
 
@@ -146,15 +381,16 @@ INSERT INTO `fornecedor` (`id`, `nome`) VALUES
 
 CREATE TABLE `lista` (
   `id` int(11) NOT NULL,
-  `nome` varchar(50) COLLATE utf8_bin NOT NULL
+  `nome` varchar(50) COLLATE utf8_bin NOT NULL,
+  `id_usuario` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Extraindo dados da tabela `lista`
 --
 
-INSERT INTO `lista` (`id`, `nome`) VALUES
-(1, 'teste');
+INSERT INTO `lista` (`id`, `nome`, `id_usuario`) VALUES
+(1, 'teste', 1);
 
 -- --------------------------------------------------------
 
@@ -174,14 +410,10 @@ CREATE TABLE `lista_produto` (
 --
 
 INSERT INTO `lista_produto` (`id_produto`, `id_lista`, `quantidade`, `valor`) VALUES
-(2, 1, 1, 3.6),
-(3, 1, 1, 2),
-(4, 1, 1, 2.56),
-(1, 1, 1, 2.5),
-(2, 1, 1, 3.6),
-(3, 1, 1, 2),
-(16, 1, 1, 23.18),
-(21, 1, 1, 333.33);
+(53, 1, 1, 0),
+(1, 1, 1, 0),
+(32, 1, 1, 0),
+(50, 1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -199,7 +431,9 @@ CREATE TABLE `medida` (
 --
 
 INSERT INTO `medida` (`id`, `medida`) VALUES
-(1, 'teste');
+(1, 'Litro'),
+(2, 'Kg'),
+(3, 'Un');
 
 -- --------------------------------------------------------
 
@@ -213,38 +447,40 @@ CREATE TABLE `produto` (
   `nome` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `id_medida` int(11) DEFAULT NULL,
   `quantidade` float DEFAULT NULL,
-  `id_fornecedor` int(11) NOT NULL,
   `id_categoria` int(11) NOT NULL,
-  `valor` float NOT NULL DEFAULT 0
+  `id_usuario` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Extraindo dados da tabela `produto`
 --
 
-INSERT INTO `produto` (`id`, `status`, `nome`, `id_medida`, `quantidade`, `id_fornecedor`, `id_categoria`, `valor`) VALUES
-(1, 0, 'Produto A', 1, 1, 1, 1, 2.5),
-(2, 0, 'Produto A', 1, 2, 2, 1, 3.6),
-(3, 0, 'Produto A', 1, 2, 3, 1, 2),
-(4, 0, 'Produto B', 1, 2, 1, 1, 2.56),
-(5, 0, 'Produto B', 1, 2, 2, 1, 2.06),
-(6, 0, 'Produto B', 1, 2, 3, 1, 2.76),
-(7, 0, 'Produto C', 1, 2, 1, 1, 2.65),
-(8, 0, 'Produto C', 1, 2, 2, 1, 2.56),
-(9, 0, 'Produto C', 1, 2, 3, 1, 2),
-(10, 0, 'Produto D', 1, 2, 1, 4, 25.6),
-(11, 0, 'Produto D', 1, 2, 2, 1, 23.18),
-(12, 0, 'Produto D', 1, 2, 3, 1, 25),
-(13, 0, 'Produto E', 1, 2, 1, 1, 23.11),
-(14, 0, 'Produto E', 1, 2, 2, 1, 23.18),
-(15, 0, 'Produto E', 1, 2, 3, 1, 23.12),
-(16, 0, 'Produto F', 1, 2, 1, 1, 23.18),
-(17, 0, 'Produto F', 1, 2, 2, 1, 22.22),
-(18, 0, 'Produto F', 1, 3, 3, 1, 33.33),
-(19, 0, 'Produto G', 1, 2, 1, 1, 343.44),
-(20, 0, 'Produto G', 1, 2, 2, 1, 324.33),
-(21, 0, 'Produto G', 1, 2, 3, 1, 333.33),
-(23, 0, 'teste3', 1, 2, 1, 1, 20);
+INSERT INTO `produto` (`id`, `status`, `nome`, `id_medida`, `quantidade`, `id_categoria`, `id_usuario`) VALUES
+(1, 0, 'Ovos', 3, 30, 1, 1),
+(7, 0, 'Farinha de Arroz', 2, 1, 1, 1),
+(29, 0, 'Manteiga', 2, 1, 1, 1),
+(31, 0, 'Açúcar Refinado ', 2, 1, 1, 1),
+(32, 0, 'Leite Condensado Moça', 2, 0.395, 1, 1),
+(33, 0, 'Creme de Leite Nestle', 2, 0.2, 1, 1),
+(36, 0, 'Gotas AO LEITE Melken', 2, 2.1, 1, 1),
+(37, 0, 'Gotas BRANCO Melken', 2, 2.1, 1, 1),
+(38, 0, 'Forminha n0 Branca', 3, 100, 36, 1),
+(39, 0, 'Luvas', 3, 100, 1, 1),
+(40, 0, 'Tag + Fio Sisal', 3, 500, 36, 1),
+(41, 0, 'Adesivo Validade', 3, 500, 36, 1),
+(42, 0, 'Saco de Papel P', 3, 100, 36, 1),
+(43, 0, 'Caixa Kraft 3 Brig', 3, 100, 36, 1),
+(44, 0, 'Leite em Pó Ninho', 2, 0.4, 1, 1),
+(45, 0, 'Cacau em pó 50%', 2, 0.5, 1, 1),
+(46, 0, 'Granulê BRANCO Melken', 2, 0.4, 1, 1),
+(47, 0, 'Plástico Filme 100m', 3, 1, 1, 1),
+(48, 0, 'Forminha n4 Branca', 3, 500, 36, 1),
+(49, 0, 'Saco de Papel M', 3, 100, 36, 1),
+(50, 0, 'Cacau em pó 100%', 2, 0.5, 1, 1),
+(51, 0, 'Granulê AO LEITE Melken', 2, 0.4, 1, 1),
+(52, 0, 'Arroz Japonês Grão Curto', 2, 1, 1, 1),
+(53, 0, 'Maisena', 2, 0.2, 1, 1),
+(54, 0, 'Açúcar Mascavo', 2, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -254,8 +490,23 @@ INSERT INTO `produto` (`id`, `status`, `nome`, `id_medida`, `quantidade`, `id_fo
 
 CREATE TABLE `produto_fornecedor` (
   `id_produto` int(11) NOT NULL,
-  `id_fornecedor` int(11) NOT NULL
+  `id_fornecedor` int(11) NOT NULL,
+  `valor` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Extraindo dados da tabela `produto_fornecedor`
+--
+
+INSERT INTO `produto_fornecedor` (`id_produto`, `id_fornecedor`, `valor`) VALUES
+(53, 37, 2),
+(53, 38, 1.9),
+(1, 38, 13),
+(50, 38, 15),
+(32, 38, 7),
+(1, 37, 12),
+(32, 37, 5.9),
+(50, 37, 20);
 
 -- --------------------------------------------------------
 
@@ -270,6 +521,14 @@ CREATE TABLE `saida_produto` (
   `data_saida` date DEFAULT NULL,
   `valor_unitario` decimal(9,2) DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Extraindo dados da tabela `saida_produto`
+--
+
+INSERT INTO `saida_produto` (`id`, `id_produto`, `qtde`, `data_saida`, `valor_unitario`) VALUES
+(1, 7, 10, '2022-03-02', '20.00'),
+(2, 1, 3, '2022-03-02', '2.50');
 
 --
 -- Acionadores `saida_produto`
@@ -293,6 +552,36 @@ END
 $$
 DELIMITER ;
 
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `usuario`
+--
+
+CREATE TABLE `usuario` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(100) COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Extraindo dados da tabela `usuario`
+--
+
+INSERT INTO `usuario` (`id`, `nome`) VALUES
+(1, 'Samanta dos Santos');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `usuario_acesso`
+--
+
+CREATE TABLE `usuario_acesso` (
+  `login` varchar(14) COLLATE utf8_bin NOT NULL,
+  `senha` varchar(50) COLLATE utf8_bin NOT NULL,
+  `id_usuario` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 --
 -- Índices para tabelas despejadas
 --
@@ -302,7 +591,8 @@ DELIMITER ;
 --
 ALTER TABLE `categoria`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_categoria` (`id_categoria`);
+  ADD KEY `id_categoria` (`id_categoria`),
+  ADD KEY `id_usuario` (`id_usuario`);
 
 --
 -- Índices para tabela `entrada_produto`
@@ -316,19 +606,35 @@ ALTER TABLE `entrada_produto`
 --
 ALTER TABLE `estoque`
   ADD PRIMARY KEY (`id`),
+  ADD KEY `id_produto` (`id_produto`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
+-- Índices para tabela `ficha_tecnica`
+--
+ALTER TABLE `ficha_tecnica`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices para tabela `ficha_tecnica_conteudo`
+--
+ALTER TABLE `ficha_tecnica_conteudo`
+  ADD KEY `id_ficha_tecnica` (`id_ficha_tecnica`),
   ADD KEY `id_produto` (`id_produto`);
 
 --
 -- Índices para tabela `fornecedor`
 --
 ALTER TABLE `fornecedor`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_usuario` (`id_usuario`);
 
 --
 -- Índices para tabela `lista`
 --
 ALTER TABLE `lista`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_usuario` (`id_usuario`);
 
 --
 -- Índices para tabela `lista_produto`
@@ -348,9 +654,9 @@ ALTER TABLE `medida`
 --
 ALTER TABLE `produto`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_fornecedor` (`id_fornecedor`),
   ADD KEY `id_categoria` (`id_categoria`),
-  ADD KEY `id_medida` (`id_medida`);
+  ADD KEY `id_medida` (`id_medida`),
+  ADD KEY `id_usuario` (`id_usuario`);
 
 --
 -- Índices para tabela `produto_fornecedor`
@@ -367,6 +673,19 @@ ALTER TABLE `saida_produto`
   ADD KEY `id_produto` (`id_produto`);
 
 --
+-- Índices para tabela `usuario`
+--
+ALTER TABLE `usuario`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices para tabela `usuario_acesso`
+--
+ALTER TABLE `usuario_acesso`
+  ADD UNIQUE KEY `LOGIN` (`login`),
+  ADD KEY `id_usuario` (`id_usuario`);
+
+--
 -- AUTO_INCREMENT de tabelas despejadas
 --
 
@@ -374,25 +693,31 @@ ALTER TABLE `saida_produto`
 -- AUTO_INCREMENT de tabela `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT de tabela `entrada_produto`
 --
 ALTER TABLE `entrada_produto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de tabela `estoque`
 --
 ALTER TABLE `estoque`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT de tabela `ficha_tecnica`
+--
+ALTER TABLE `ficha_tecnica`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `fornecedor`
 --
 ALTER TABLE `fornecedor`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de tabela `lista`
@@ -404,19 +729,25 @@ ALTER TABLE `lista`
 -- AUTO_INCREMENT de tabela `medida`
 --
 ALTER TABLE `medida`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT de tabela `saida_produto`
 --
 ALTER TABLE `saida_produto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de tabela `usuario`
+--
+ALTER TABLE `usuario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restrições para despejos de tabelas
@@ -426,7 +757,8 @@ ALTER TABLE `saida_produto`
 -- Limitadores para a tabela `categoria`
 --
 ALTER TABLE `categoria`
-  ADD CONSTRAINT `CATEGORIA_SUBCATEGORIA` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id`);
+  ADD CONSTRAINT `CATEGORIA_SUBCATEGORIA` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id`),
+  ADD CONSTRAINT `USUARIO_CATEGORIA` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id`);
 
 --
 -- Limitadores para a tabela `entrada_produto`
@@ -438,7 +770,27 @@ ALTER TABLE `entrada_produto`
 -- Limitadores para a tabela `estoque`
 --
 ALTER TABLE `estoque`
-  ADD CONSTRAINT `PRODUTO_ESTOQUE` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id`);
+  ADD CONSTRAINT `PRODUTO_ESTOQUE` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id`),
+  ADD CONSTRAINT `USUARIO_ESTOQUE` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id`);
+
+--
+-- Limitadores para a tabela `ficha_tecnica_conteudo`
+--
+ALTER TABLE `ficha_tecnica_conteudo`
+  ADD CONSTRAINT `FICHA_TECNICA` FOREIGN KEY (`id_ficha_tecnica`) REFERENCES `ficha_tecnica` (`id`),
+  ADD CONSTRAINT `INGREDIENTE` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id`);
+
+--
+-- Limitadores para a tabela `fornecedor`
+--
+ALTER TABLE `fornecedor`
+  ADD CONSTRAINT `USUARIO_FORNECEDOR` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id`);
+
+--
+-- Limitadores para a tabela `lista`
+--
+ALTER TABLE `lista`
+  ADD CONSTRAINT `USUARIO_LISTA` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id`);
 
 --
 -- Limitadores para a tabela `lista_produto`
@@ -452,7 +804,8 @@ ALTER TABLE `lista_produto`
 --
 ALTER TABLE `produto`
   ADD CONSTRAINT `PRODUTO_CATEGORIA` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id`),
-  ADD CONSTRAINT `PRODUTO_MEDIDA` FOREIGN KEY (`id_medida`) REFERENCES `medida` (`id`);
+  ADD CONSTRAINT `PRODUTO_MEDIDA` FOREIGN KEY (`id_medida`) REFERENCES `medida` (`id`),
+  ADD CONSTRAINT `USUARIO_PRODUTO` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id`);
 
 --
 -- Limitadores para a tabela `produto_fornecedor`
@@ -466,6 +819,12 @@ ALTER TABLE `produto_fornecedor`
 --
 ALTER TABLE `saida_produto`
   ADD CONSTRAINT `SAIDA_PRODUTO` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id`);
+
+--
+-- Limitadores para a tabela `usuario_acesso`
+--
+ALTER TABLE `usuario_acesso`
+  ADD CONSTRAINT `USUARIO_ACESSO` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

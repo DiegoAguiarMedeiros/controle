@@ -4,7 +4,7 @@ namespace Api\Model;
 
 use Zend\Db\Sql\Sql;
 
-class Categoria
+class FichaTecnica
 {
     private $id;
     private $nome;
@@ -30,7 +30,7 @@ class Categoria
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $select = $sql->select('categoria');
+        $select = $sql->select('ficha_tecnica');
         if($limit){
             $select->limit($limit);
         }
@@ -40,12 +40,15 @@ class Categoria
         $select->order("$coluna $order");
         $selectString = $sql->buildSqlString($select);
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
-        $categorias = array();
+        $FichaTecnicas = array();
 
         foreach ($results->toArray() as $value) {
-            $categorias[$value['id']] = $value['nome'];
+            $FichaTecnica = array();
+            $FichaTecnica['id'] = $value['id'];
+            $FichaTecnica['nome'] = $value['nome'];
+            $FichaTecnicas[] = $FichaTecnica;
         }
-        return $categorias;
+        return $FichaTecnicas;
     }
     public function fetchAllWithProduct($limit = null, $offset = null, $coluna = 'id' , $order = 'ASC' )
     {
@@ -53,18 +56,18 @@ class Categoria
         
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $selectString = "SELECT c.id, c.nome, COUNT(p.id) as produtos FROM categoria c LEFT JOIN produto p ON p.id_categoria = c.id GROUP BY c.id $limit $offset";
+        $selectString = "SELECT ft.id, ft.nome FROM ficha_tecnica ft JOIN ficha_tecnica_content ftc ON ftc.id_ficha_tecnica = ft.id  JOIN produto p ON p.id_FichaTecnica = ftc.id_produto GROUP BY c.id $limit $offset";
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
-        $categorias = array();
+        $FichaTecnicas = array();
 
         foreach ($results->toArray() as $value) {
-            $categoria = array();
-            $categoria['id'] = $value['id'];
-            $categoria['nome'] = $value['nome'];
-            $categoria['produtos'] = $value['produtos'];
-            $categorias[] = $categoria;
+            $FichaTecnica = array();
+            $FichaTecnica['id'] = $value['id'];
+            $FichaTecnica['nome'] = $value['nome'];
+            $FichaTecnica['produtos'] = $value['produtos'];
+            $FichaTecnicas[] = $FichaTecnica;
         }
-        return $categorias;
+        return $FichaTecnicas;
 
     }
     
@@ -73,7 +76,7 @@ class Categoria
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $select = $sql->select('categoria');
+        $select = $sql->select('ficha_tecnica');
         $select->where(['id'=>$this->id]);
         $selectString = $sql->buildSqlString($select);
         $results = $adapter->query($selectString, $adapter::QUERY_MODE_EXECUTE);
@@ -88,7 +91,7 @@ class Categoria
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $insert = $sql->insert('categoria');
+        $insert = $sql->insert('ficha_tecnica');
         $insert->values(['nome'=>$this->nome]);
         $insertString = $sql->buildSqlString($insert);
         $result = $adapter->query($insertString,$adapter::QUERY_MODE_EXECUTE);
@@ -98,7 +101,7 @@ class Categoria
     {
         $con = new Connection();
         $adapter = $con->getAdapter();
-        $deleteString = "DELETE FROM categoria WHERE id = $this->id";
+        $deleteString = "DELETE FROM FichaTecnica WHERE id = $this->id";
         $result = $adapter->query($deleteString,$adapter::QUERY_MODE_EXECUTE);
         return $result->getAffectedRows();
     }
@@ -107,7 +110,7 @@ class Categoria
         $con = new Connection();
         $adapter = $con->getAdapter();
         $sql = new Sql($adapter);
-        $update = $sql->update('categoria');
+        $update = $sql->update('ficha_tecnica');
         $update->set(['nome' => $this->nome]);
         $update->where(['id'=>$this->id]);
         $updateString = $sql->buildSqlString($update);

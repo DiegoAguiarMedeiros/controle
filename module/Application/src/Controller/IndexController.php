@@ -8,6 +8,8 @@
 
 namespace Application\Controller;
 
+use Api\Model\FichaTecnica;
+use Application\Form\FichaTecnicaForm;
 use Application\Form\ListaForm;
 use Application\Form\EntradaSaidaEstoqueForm;
 use Application\Form\FornecedorForm;
@@ -21,6 +23,29 @@ class IndexController extends AbstractActionController
 {
     public function indexAction()
     {
+        return new ViewModel();
+    }
+    public function fichaTecnicaAction()
+    {
+        $request = $this->getRequest();
+        $fichaTecnicaForm = new FichaTecnicaForm('fichaTecnicaForm');
+        if (!$request->isPost()) {
+            return new ViewModel(['fichaTecnicaForm' => $fichaTecnicaForm]);
+        }
+        return new ViewModel();
+    }
+    public function fichaAction()
+    {
+        $request = $this->getRequest();
+        $id = (int) $this->params()->fromRoute('id', 0);
+
+        $fichaTecnica = new FichaTecnica();
+        $fichaTecnica->__set('id',$id);
+        $fichaTecnica->fetch();
+        $fichaTecnicaForm = new FichaTecnicaForm('fichaTecnicaForm');
+        if (!$request->isPost()) {
+            return new ViewModel(['fichaTecnicaForm' => $fichaTecnicaForm, 'nomeFichaTenica' => $fichaTecnica->__get('nome')]);
+        }
         return new ViewModel();
     }
     public function estoqueAction()

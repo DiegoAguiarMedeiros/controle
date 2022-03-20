@@ -10,6 +10,7 @@ namespace Api\Controller;
 
 use Api\Model\Lista;
 use Api\Model\Categoria;
+use Api\Model\FichaTecnica;
 use Api\Model\Fornecedor;
 use Api\Model\Produto;
 use Api\Model\Estoque;
@@ -180,6 +181,24 @@ class IndexController extends AbstractActionController
 
         return $request;
     }
+    public function insertFichaTecnicaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $fichaTecnica = new FichaTecnica();
+        $fichaTecnica->__set('nome', $request->getPost('nome'));
+
+        $result = $fichaTecnica->insert();
+
+        if ($result) {
+            $arr_result = ['success' => 1, 'error' => 0];
+        } else {
+            $arr_result = ['success' => 0, 'error' => 1];
+        }
+        echo json_encode($arr_result);
+
+        return $request;
+    }
     public function updateCategoriaAction()
     {
         $request = $this->getRequest();
@@ -302,9 +321,19 @@ class IndexController extends AbstractActionController
         $request = $this->getRequest();
         $this->layout()->setTemplate('layout/blank');
         $categoria = new Categoria;
-        $categorias = $categoria->fetchAllWithProdutc();
+        $categorias = $categoria->fetchAllWithProduct();
 
         echo json_encode($categorias);
+        return $request;
+    }
+    public function fichaTecnicaAction()
+    {
+        $request = $this->getRequest();
+        $this->layout()->setTemplate('layout/blank');
+        $fichaTecnica = new FichaTecnica;
+        $fichaTecnicas = $fichaTecnica->fetchAll();
+
+        echo json_encode($fichaTecnicas);
         return $request;
     }
     public function fornecedoresAction()

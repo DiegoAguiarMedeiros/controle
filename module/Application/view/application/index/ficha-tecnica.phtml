@@ -1,0 +1,173 @@
+<?php
+
+
+$fichaTecnicaForm = $this->fichaTecnicaForm;
+$fichaTecnicaForm->prepare();
+$fichaTecnicaForm->setAttribute('method', 'post');
+
+$nomeFichaTecnica = $fichaTecnicaForm->get('nome');
+$nomeFichaTecnica->setAttributes(['class' => 'form-control  text-dark']);
+$nomeFichaTecnica->setAttributes(['placeholder' => 'FichaTecnica...']);
+$nomeFichaTecnica->setAttributes(['required' => 'true']);
+
+$sendFichaTecnica = $fichaTecnicaForm->get('send');
+$sendFichaTecnica->setAttributes(['class' => 'btn btn-primary float-right']);
+$sendFichaTecnica->setAttributes(['id' => 'enviarFichaTecnica']);
+
+$fichaTecnicaForm = $this->fichaTecnicaForm;
+$fichaTecnicaForm->prepare();
+$fichaTecnicaForm->setAttribute('method', 'post');
+
+?>
+<div class="col-md-12">
+    <div class="card ">
+        <div class="card-header row">
+            <div class="card-header col ">
+                <h3 class="card-title"> Ficha Técnica </h3>
+            </div>
+            <div class="card-header col-3 row ">
+                <div class="col-6 mx-0 px-0 ">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fichaTecnicaModal">
+                        ADICIONAR
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row p-0 m-0 " id="fichaTecnicaCard">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="fichaTecnicaModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="fichaTecnicaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <?= $this->form()->openTag($fichaTecnicaForm); ?>
+            <div class="modal-header">
+                <h5 class="modal-title" id="fichaTecnicaModalLabel">Adicionar Ficha Técnica</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <input type="hidden" id="editInput" value="0">
+                <input type="hidden" id="idFichaTecnica" name="id">
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <?= $this->formLabel($nomeFichaTecnica); ?>
+                    <?= $this->formElement($nomeFichaTecnica); ?>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closefichaTecnicaModal" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <?= $this->formElement($sendFichaTecnica); ?>
+            </div>
+            <?= $this->form()->closeTag(); ?>
+        </div>
+    </div>
+</div>
+<script>
+    const loadFichaTecnica = () => {
+        $('#fichaTecnicaCard').html(`<tr><td colspan='6'><center><div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+                </div></center></td></tr>`)
+
+        let url = '/api/fichaTecnica';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: "json"
+        }).fail((dados) => {
+            $('#fichaTecnicaCard').html(`<tr><td colspan='6'>ERROR</td></tr>`)
+
+        }).done((dados) => {
+            $('#fichaTecnicaCard').html('')
+
+            dados.map(ficha => {
+                console.log(ficha)
+                $('#fichaTecnicaCard').prepend(`<div class="col-3 " id="nome${ficha.id}">
+                <div class="w-100 p-2 card"  style="background-color:#709aff!important;">
+                    <div class="w-100 card-header"><a href="/application/ficha/${ficha.id}"><h3>${ficha.nome}</h3></a>
+                    </div>
+                    <div class="w-100 card-body">b
+                    </div>
+                    <div class="w-100 card-bottom">c
+                    </div>
+                    </div>
+                </div>`)
+            })
+
+        })
+
+    }
+    const limparEditar = () => {
+        $('#fichaTecnicaModal').html('NOVA FICHA TÉCNICA')
+        $('#editInput').val(0)
+        $("input[name='nome']").val('')
+    }
+    const editarFichaTecnica = (fichaTecnica, nome) => {
+
+        $('#editInput').val(1)
+        $('#idFichaTecnica').val(fichaTecnica)
+        $("input[name='nome']").val(nome)
+
+        $('#fichaTecnicaModal').html('EDITAR FICHA TÉCNICA')
+
+    }
+
+
+
+    $('#fichaTecnicaForm').submit(e => {
+        e.preventDefault()
+        let editInput = $('#editInput').val()
+        let url = '';
+        if (editInput == 0) {
+            url = '/api/insertFichaTecnica'
+        } else {
+            url = '/api/updateFichaTecnica'
+        }
+        enviarFichaTecnica(url)
+
+    })
+
+
+    const enviarFichaTecnica = (url) => {
+        let form = document.getElementById('fichaTecnicaForm')
+        let formData = new FormData(form)
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+        }).done(function(e) {
+
+            let result = JSON.parse(e)
+            if (result.success == 1) {
+                $('#fichaTecnicaForm input').val("");
+                $('#enviarFichaTecnica').val("Enviar");
+                Swal.fire(
+                    'Eeeeee!',
+                    'FichaTecnica Cadastrada!',
+                    'success'
+                )
+                $('#closeFichaTecnicaModal').click();
+            } else {
+                Swal.fire(
+                    'Aaaa!',
+                    'FichaTecnica Não Cadastrada!',
+                    'error'
+                )
+            }
+
+            loadFichaTecnica()
+        }).fail(function(e) {
+            console.log(e);
+        });
+    }
+
+    $(document).ready(() => {
+
+        loadFichaTecnica()
+    })
+</script>
